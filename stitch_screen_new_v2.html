@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Signl | Automate Your Professional Evolution</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&amp;family=Space+Grotesk:wght@300;400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface-tint": "#ba9eff",
+              "outline": "#777575",
+              "on-secondary-fixed": "#003853",
+              "surface-container": "#1a1919",
+              "error-container": "#a70138",
+              "error": "#ff6e84",
+              "on-tertiary-fixed-variant": "#780021",
+              "on-primary-fixed": "#000000",
+              "primary-container": "#ae8dff",
+              "surface-container-high": "#201f1f",
+              "on-primary-container": "#2b006e",
+              "secondary-container": "#006591",
+              "surface-container-highest": "#262626",
+              "surface-variant": "#262626",
+              "secondary-fixed": "#a4d8ff",
+              "surface-dim": "#0e0e0e",
+              "surface-container-lowest": "#000000",
+              "tertiary-dim": "#ff6f7e",
+              "on-primary": "#39008c",
+              "inverse-primary": "#6e3bd7",
+              "primary-fixed-dim": "#a27cff",
+              "surface-bright": "#2c2c2c",
+              "primary": "#ba9eff",
+              "on-surface": "#ffffff",
+              "secondary-dim": "#17a8ec",
+              "secondary-fixed-dim": "#81ccff",
+              "on-tertiary": "#490010",
+              "primary-dim": "#8455ef",
+              "tertiary-fixed": "#ff9099",
+              "error-dim": "#d73357",
+              "on-secondary-container": "#f3f8ff",
+              "on-error": "#490013",
+              "on-error-container": "#ffb2b9",
+              "secondary": "#34b5fa",
+              "tertiary": "#ff6f7e",
+              "on-tertiary-container": "#100001",
+              "on-surface-variant": "#adaaaa",
+              "inverse-surface": "#fcf8f8",
+              "surface-container-low": "#131313",
+              "outline-variant": "#494847",
+              "inverse-on-surface": "#565554",
+              "on-tertiary-fixed": "#39000b",
+              "tertiary-container": "#fc4563",
+              "surface": "#0e0e0e",
+              "on-primary-fixed-variant": "#370086",
+              "primary-fixed": "#ae8dff",
+              "tertiary-fixed-dim": "#ff7986",
+              "background": "#0e0e0e",
+              "on-background": "#ffffff",
+              "on-secondary-fixed-variant": "#00567c",
+              "on-secondary": "#003047"
+            },
+            fontFamily: {
+              "headline": ["Space Grotesk"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        .plasma-glow {
+            background: radial-gradient(circle at 50% 50%, rgba(186, 158, 255, 0.08) 0%, transparent 70%);
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        .pulse-line {
+            height: 1px;
+            background: linear-gradient(90deg, transparent 0%, #ba9eff 50%, transparent 100%);
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+        .pulse-line::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(186, 158, 255, 0.8), transparent);
+            animation: pulse-move 4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+        }
+        @keyframes pulse-move {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-surface selection:bg-primary/30 scroll-smooth">
+<nav class="bg-black/20 backdrop-blur-xl rounded-full mt-8 mx-auto max-w-5xl sticky top-8 z-50 border border-white/5 flex justify-between items-center w-full px-8 py-3.5">
+<div class="flex items-center gap-10">
+<span class="text-2xl font-bold tracking-tighter text-white font-headline">Signl</span>
+<div class="hidden md:flex gap-8 items-center">
+<a class="font-headline tracking-tight text-xs uppercase font-medium text-white/90 transition-all hover:text-white" href="#">Platform</a>
+<a class="font-headline tracking-tight text-xs uppercase font-medium text-white/40 hover:text-white transition-all" href="#">Solutions</a>
+<a class="font-headline tracking-tight text-xs uppercase font-medium text-white/40 hover:text-white transition-all" href="#">Intelligence</a>
+<a class="font-headline tracking-tight text-xs uppercase font-medium text-white/40 hover:text-white transition-all" href="#">Pricing</a>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<button class="font-headline tracking-tight text-xs uppercase font-medium text-white/40 hover:text-white transition-all">Login</button>
+<button class="bg-white text-black font-headline tracking-tight text-xs uppercase font-bold px-6 py-2.5 rounded-full hover:bg-primary transition-all duration-300">Launch</button>
+</div>
+</nav>
+<header class="relative min-h-[1433px] flex flex-col items-center justify-center text-center px-6 overflow-hidden">
+<div class="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full plasma-glow pointer-events-none"></div>
+<div class="relative z-10 max-w-6xl w-full flex flex-col items-center">
+<div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/5 mb-16">
+<span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+<span class="text-[9px] font-label tracking-[0.3em] uppercase text-on-surface-variant/60 font-medium">System Status: Evolutionary</span>
+</div>
+<h1 class="font-headline text-6xl md:text-[10rem] font-bold tracking-[-0.07em] text-white leading-[0.8] mb-16">
+                Automate Your Professional <br/>
+<span class="text-transparent bg-clip-text bg-gradient-to-b from-white to-white/10">Evolution.</span>
+</h1>
+<div class="w-full max-w-4xl px-6 opacity-60 mt-24">
+<div class="pulse-line"></div>
+<div class="flex justify-between mt-6">
+<span class="text-[10px] font-label tracking-[0.5em] text-white/30 uppercase">Stage 01</span>
+<span class="text-[10px] font-label tracking-[0.5em] text-white/30 uppercase">Optimization</span>
+<span class="text-[10px] font-label tracking-[0.5em] text-white/30 uppercase">Scale</span>
+</div>
+</div>
+<div class="mt-32">
+<p class="text-xl md:text-2xl text-on-surface-variant/70 max-w-2xl mx-auto mb-16 font-light tracking-tight leading-relaxed">
+                    Your AI-powered ally for every stage of your career journey. High-intent outreach and market intelligence on autopilot.
+                </p>
+<div class="flex flex-col md:flex-row gap-6 justify-center items-center">
+<button class="bg-white text-black font-headline text-base uppercase tracking-widest font-bold px-12 py-6 rounded-full hover:scale-105 transition-all duration-500">
+                        Begin Analysis
+                    </button>
+</div>
+</div>
+</div>
+</header>
+<section class="py-0 px-6">
+<div class="max-w-7xl mx-auto">
+<div class="h-screen flex flex-col justify-center items-center text-center">
+<h2 class="font-headline text-xs tracking-[0.8em] uppercase text-primary font-bold mb-8">The Methodology</h2>
+<h3 class="font-headline text-5xl md:text-7xl font-bold text-white">Refined Workflow</h3>
+</div>
+<div class="space-y-[409px] pb-[409px]">
+<div class="flex flex-col items-center text-center px-8 min-h-[614px] justify-center max-w-2xl mx-auto">
+<div class="w-px h-32 bg-gradient-to-b from-transparent to-primary mb-12"></div>
+<h4 class="font-headline text-3xl font-bold text-white mb-8">Ingest</h4>
+<p class="text-on-surface-variant/60 text-lg leading-relaxed font-light">Deep neural parsing of your professional history to extract latent value indicators.</p>
+</div>
+<div class="flex flex-col items-center text-center px-8 min-h-[614px] justify-center max-w-2xl mx-auto">
+<div class="w-px h-32 bg-gradient-to-b from-transparent to-tertiary mb-12"></div>
+<h4 class="font-headline text-3xl font-bold text-white mb-8">Align</h4>
+<p class="text-on-surface-variant/60 text-lg leading-relaxed font-light">Real-time matching against proprietary market signals and emerging demand vectors.</p>
+</div>
+<div class="flex flex-col items-center text-center px-8 min-h-[614px] justify-center max-w-2xl mx-auto">
+<div class="w-px h-32 bg-gradient-to-b from-transparent to-secondary mb-12"></div>
+<h4 class="font-headline text-3xl font-bold text-white mb-8">Execute</h4>
+<p class="text-on-surface-variant/60 text-lg leading-relaxed font-light">High-conversion outreach loops that secure key placements with zero manual effort.</p>
+</div>
+</div>
+</div>
+</section>
+<section class="bg-[#050505] relative overflow-hidden">
+<div class="max-w-4xl mx-auto px-6">
+<div class="h-screen flex flex-col justify-center">
+<h2 class="font-headline text-5xl md:text-8xl font-bold tracking-tight text-white mb-8">Intelligence Stack</h2>
+<p class="text-on-surface-variant/50 text-xl font-light">Sophisticated tools for the modern high-performer.</p>
+</div>
+<div class="flex flex-col gap-[204px] pb-[409px]">
+<div class="group py-24 border-b border-white/5">
+<div class="flex justify-between items-start mb-16">
+<span class="text-8xl font-headline font-black text-white/5 group-hover:text-primary/20 transition-colors duration-700">01/04</span>
+<span class="material-symbols-outlined text-primary text-5xl" data-icon="architecture">architecture</span>
+</div>
+<h3 class="font-headline text-4xl font-bold text-white mb-8">Resume Analyser</h3>
+<div class="h-px w-full bg-white/5 relative overflow-hidden mb-12">
+<div class="absolute inset-y-0 left-0 w-24 bg-primary transition-all duration-1000 group-hover:w-full"></div>
+</div>
+<p class="text-on-surface-variant/60 text-lg font-light max-w-xl mb-12">Deep structural analysis of your professional narrative through the lens of algorithmic recruitment standards.</p>
+<span class="text-xs font-label tracking-[0.4em] uppercase text-primary font-bold">Deploy Module</span>
+</div>
+<div class="group py-24 border-b border-white/5">
+<div class="flex justify-between items-start mb-16">
+<span class="text-8xl font-headline font-black text-white/5 group-hover:text-tertiary/20 transition-colors duration-700">02/04</span>
+<span class="material-symbols-outlined text-tertiary text-5xl" data-icon="forum">forum</span>
+</div>
+<h3 class="font-headline text-4xl font-bold text-white mb-8">Live Simulator</h3>
+<div class="h-px w-full bg-white/5 relative overflow-hidden mb-12">
+<div class="absolute inset-y-0 left-0 w-24 bg-tertiary transition-all duration-1000 group-hover:w-full"></div>
+</div>
+<p class="text-on-surface-variant/60 text-lg font-light max-w-xl mb-12">Stress-test your market positioning within hyper-realistic conversational environments driven by neural agents.</p>
+<span class="text-xs font-label tracking-[0.4em] uppercase text-tertiary font-bold">Calibrate Module</span>
+</div>
+<div class="group py-24 border-b border-white/5">
+<div class="flex justify-between items-start mb-16">
+<span class="text-8xl font-headline font-black text-white/5 group-hover:text-secondary/20 transition-colors duration-700">03/04</span>
+<span class="material-symbols-outlined text-secondary text-5xl" data-icon="analytics">analytics</span>
+</div>
+<h3 class="font-headline text-4xl font-bold text-white mb-8">Market Benchmarks</h3>
+<div class="h-px w-full bg-white/5 relative overflow-hidden mb-12">
+<div class="absolute inset-y-0 left-0 w-24 bg-secondary transition-all duration-1000 group-hover:w-full"></div>
+</div>
+<p class="text-on-surface-variant/60 text-lg font-light max-w-xl mb-12">Global transparency into compensation, equity, and movement patterns across your specific vertical.</p>
+<span class="text-xs font-label tracking-[0.4em] uppercase text-secondary font-bold">Access Database</span>
+</div>
+<div class="group py-24 border-b border-white/5">
+<div class="flex justify-between items-start mb-16">
+<span class="text-8xl font-headline font-black text-white/5 group-hover:text-error/20 transition-colors duration-700">04/04</span>
+<span class="material-symbols-outlined text-error text-5xl" data-icon="shield_person">shield_person</span>
+</div>
+<h3 class="font-headline text-4xl font-bold text-white mb-8">Outreach Autopilot</h3>
+<div class="h-px w-full bg-white/5 relative overflow-hidden mb-12">
+<div class="absolute inset-y-0 left-0 w-24 bg-error transition-all duration-1000 group-hover:w-full"></div>
+</div>
+<p class="text-on-surface-variant/60 text-lg font-light max-w-xl mb-12">Autonomous engagement with high-value nodes in your target professional network, optimized for reply-intent.</p>
+<span class="text-xs font-label tracking-[0.4em] uppercase text-error font-bold">Ignite Sequence</span>
+</div>
+</div>
+</div>
+</section>
+<section class="py-[307px] px-6 relative">
+<div class="max-w-7xl mx-auto flex flex-col items-center">
+<div class="relative w-[30rem] h-[30rem] mb-32 flex items-center justify-center">
+<div class="absolute inset-0 bg-primary/10 rounded-full blur-[120px] scale-150 opacity-40"></div>
+<div class="absolute inset-0 border border-white/10 rounded-full animate-[spin_60s_linear_infinite]"></div>
+<div class="absolute inset-12 border border-white/5 rounded-full animate-[spin_45s_linear_infinite_reverse]"></div>
+<div class="absolute inset-24 border border-white/10 rounded-full flex items-center justify-center backdrop-blur-3xl">
+<div class="w-3 h-3 bg-white rounded-full shadow-[0_0_30px_rgba(255,255,255,0.8)]"></div>
+</div>
+<div class="absolute -left-32 top-1/4 max-w-xs text-right hidden lg:block">
+<h3 class="font-headline text-[10px] tracking-[0.5em] uppercase text-primary font-bold mb-4">Autonomous Strategy</h3>
+<h2 class="font-headline text-5xl font-bold text-white leading-tight">The career oracle that never rests.</h2>
+</div>
+<div class="absolute -right-32 bottom-1/4 max-w-xs text-left hidden lg:block">
+<p class="text-on-surface-variant/60 text-sm font-light leading-relaxed">
+                        Signl operates as a quiet background layer, continuously scanning the global market to find opportunities before they are even categorized.
+                    </p>
+</div>
+</div>
+<div class="max-w-3xl w-full text-center lg:text-left">
+<div class="lg:hidden mb-16">
+<h3 class="font-headline text-[10px] tracking-[0.5em] uppercase text-primary font-bold mb-4">Autonomous Strategy</h3>
+<h2 class="font-headline text-5xl font-bold text-white mb-10 leading-[1.1]">The career oracle that never rests.</h2>
+<p class="text-on-surface-variant/60 text-lg mb-12 font-light leading-relaxed">
+                        Signl operates as a quiet background layer, continuously scanning the global market to find opportunities before they are even categorized.
+                    </p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-12 mt-12">
+<div class="flex flex-col items-center lg:items-start gap-6">
+<span class="w-px h-12 bg-gradient-to-b from-primary to-transparent"></span>
+<span class="text-white/80 font-light text-xs tracking-[0.2em] uppercase text-center lg:text-left">Continuous Market Scanning</span>
+</div>
+<div class="flex flex-col items-center lg:items-start gap-6">
+<span class="w-px h-12 bg-gradient-to-b from-primary to-transparent"></span>
+<span class="text-white/80 font-light text-xs tracking-[0.2em] uppercase text-center lg:text-left">Predictive Relationship Mapping</span>
+</div>
+<div class="flex flex-col items-center lg:items-start gap-6">
+<span class="w-px h-12 bg-gradient-to-b from-primary to-transparent"></span>
+<span class="text-white/80 font-light text-xs tracking-[0.2em] uppercase text-center lg:text-left">Automated Persona Management</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section class="py-[409px] px-6">
+<div class="max-w-4xl mx-auto text-center">
+<h2 class="font-headline text-5xl md:text-8xl font-bold text-white mb-16 tracking-tight">Evolve your trajectory.</h2>
+<p class="text-on-surface-variant/50 text-xl max-w-xl mx-auto mb-20 font-light">Join the select circle of high-performers operating with tactical precision.</p>
+<button class="bg-white text-black font-headline text-sm tracking-[0.3em] uppercase font-bold px-20 py-8 rounded-full hover:bg-primary transition-all duration-700 shadow-2xl shadow-white/5">
+                Initialize Access
+            </button>
+</div>
+</section>
+<footer class="bg-surface w-full py-24 border-t border-white/5">
+<div class="max-w-7xl mx-auto px-8 flex flex-col md:flex-row justify-between items-center gap-12">
+<div class="flex flex-col items-center md:items-start gap-6">
+<span class="text-2xl font-black text-white font-headline tracking-tighter">Signl</span>
+<p class="font-inter text-[9px] tracking-[0.4em] uppercase text-white/20">© 2024 Signl AI. Defined by Intent.</p>
+</div>
+<div class="flex flex-wrap justify-center gap-10">
+<a class="font-inter text-[9px] tracking-[0.3em] uppercase text-white/40 hover:text-white transition-all" href="#">Privacy</a>
+<a class="font-inter text-[9px] tracking-[0.3em] uppercase text-white/40 hover:text-white transition-all" href="#">Terms</a>
+<a class="font-inter text-[9px] tracking-[0.3em] uppercase text-white/40 hover:text-white transition-all" href="#">Systems</a>
+</div>
+</div>
+</footer>
+
+</body></html>

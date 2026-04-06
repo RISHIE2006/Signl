@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Signl Settings V2</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1d56c9",
+                        "background-light": "#f8fafc",
+                        "background-dark": "#0f172a",
+                        "slate-custom": "#64748b",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .border-thin { border-width: 0.5px; }
+        .ios-toggle:checked ~ .toggle-bg { background-color: #1d56c9; }
+        .ios-toggle:checked ~ .toggle-dot { transform: translateX(100%); }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 antialiased">
+<div class="relative flex min-h-screen w-full flex-col max-w-[430px] mx-auto bg-white dark:bg-slate-950 shadow-2xl">
+<!-- Header -->
+<header class="sticky top-0 z-10 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md px-6 py-4 flex items-center justify-between border-b border-slate-200 dark:border-slate-800">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-slate-custom cursor-pointer">arrow_back_ios</span>
+<h1 class="text-xl font-semibold tracking-tight">Settings</h1>
+</div>
+<button class="text-primary font-medium text-sm">Save</button>
+</header>
+<main class="flex-1 overflow-y-auto px-6 py-8 space-y-8">
+<!-- Account Section -->
+<section class="space-y-3">
+<h2 class="text-xs font-bold uppercase tracking-widest text-slate-custom px-1">Account</h2>
+<div class="bg-white dark:bg-slate-900 border-thin border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
+<div class="p-5 flex items-center gap-4 border-b border-thin border-slate-100 dark:border-slate-800">
+<div class="size-14 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Minimalist professional portrait of a man" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCsmFaA7ekLFjd5cPa7hceBc-eXAwEtwbJ7BWKeQVTbKMuGEl03B5d6jssfUbme6W6vCOhnasTQMzH4xFO3l-e_2FTPOj1psQtWqTGNatcA-bnnqv5G-lxMDKPbiPsFU6cGd7oFvOcpjuyO6MFR1MnMfQm2GM_2pemzJFLjVWiU0z_ohO3LxMG0HuzgTlpSpH7Pkogg1LUUoNDT-T3UgLYOd2lGnhiZp_fNOVs3XFafosPwiC7iHNO-tsap7pRzvN73_vXqfJGcDNY"/>
+</div>
+<div class="flex-1">
+<p class="text-sm font-semibold">Alex Rivers</p>
+<p class="text-xs text-slate-custom">alex.rivers@signl.io</p>
+</div>
+<span class="material-symbols-outlined text-slate-300 text-sm">edit</span>
+</div>
+<div class="p-5 flex items-center justify-between">
+<div>
+<p class="text-sm font-medium">Subscription</p>
+<p class="text-xs text-slate-custom">Pro Plan · Renews Oct 12</p>
+</div>
+<span class="material-symbols-outlined text-slate-custom text-xl">chevron_right</span>
+</div>
+</div>
+</section>
+<!-- Preferences Section -->
+<section class="space-y-3">
+<h2 class="text-xs font-bold uppercase tracking-widest text-slate-custom px-1">Preferences</h2>
+<div class="bg-white dark:bg-slate-900 border-thin border-slate-200 dark:border-slate-800 rounded-xl p-5 space-y-6">
+<!-- Notification Toggle -->
+<div class="flex items-center justify-between">
+<div class="space-y-0.5">
+<p class="text-sm font-medium">Push Notifications</p>
+<p class="text-xs text-slate-custom max-w-[200px]">Alerts for critical system signals</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only ios-toggle" type="checkbox"/>
+<div class="w-11 h-6 bg-slate-200 dark:bg-slate-800 rounded-full toggle-bg transition-colors duration-200"></div>
+<div class="absolute left-0.5 top-0.5 bg-white w-5 h-5 rounded-full transition-transform duration-200 toggle-dot shadow-sm"></div>
+</label>
+</div>
+<!-- Data Sharing Toggle -->
+<div class="flex items-center justify-between">
+<div class="space-y-0.5">
+<p class="text-sm font-medium">Anonymized Data Sharing</p>
+<p class="text-xs text-slate-custom max-w-[200px]">Help us improve with private usage logs</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only ios-toggle" type="checkbox"/>
+<div class="w-11 h-6 bg-slate-200 dark:bg-slate-800 rounded-full toggle-bg transition-colors duration-200"></div>
+<div class="absolute left-0.5 top-0.5 bg-white w-5 h-5 rounded-full transition-transform duration-200 toggle-dot shadow-sm"></div>
+</label>
+</div>
+<div class="pt-2 border-t border-thin border-slate-100 dark:border-slate-800 flex items-center justify-between">
+<p class="text-sm font-medium">Clear Search History</p>
+<span class="material-symbols-outlined text-slate-custom text-xl">history</span>
+</div>
+</div>
+</section>
+<!-- Danger Zone -->
+<section class="space-y-3 pt-4">
+<h2 class="text-xs font-bold uppercase tracking-widest text-red-500/80 px-1">Danger Zone</h2>
+<div class="bg-red-50/30 dark:bg-red-950/10 border-thin border-red-100 dark:border-red-900/30 rounded-xl overflow-hidden">
+<button class="w-full p-5 flex items-center justify-between text-left hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors">
+<div>
+<p class="text-sm font-medium text-slate-900 dark:text-slate-100">Export Personal Data</p>
+<p class="text-xs text-slate-custom">Request a .zip of your activity</p>
+</div>
+<span class="material-symbols-outlined text-slate-400">download</span>
+</button>
+<button class="w-full p-5 flex items-center justify-between text-left border-t border-thin border-red-100 dark:border-red-900/30 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors">
+<div>
+<p class="text-sm font-medium text-red-600">Delete Account</p>
+<p class="text-xs text-red-400">This action cannot be undone</p>
+</div>
+<span class="material-symbols-outlined text-red-300">delete_forever</span>
+</button>
+</div>
+</section>
+<div class="text-center py-6">
+<p class="text-[10px] text-slate-300 dark:text-slate-700 font-mono">VERSION 2.4.0 (SIGNL_OS)</p>
+</div>
+</main>
+<!-- Bottom Navigation Bar Component -->
+<nav class="border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950 px-6 pb-8 pt-3">
+<div class="flex justify-between items-center">
+<a class="flex flex-col items-center gap-1 text-slate-400 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-[10px] font-medium">Dashboard</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-400 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span class="text-[10px] font-medium">Activity</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-400 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">insights</span>
+<span class="text-[10px] font-medium">Insights</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-primary" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1">settings</span>
+<span class="text-[10px] font-medium">Settings</span>
+</a>
+</div>
+</nav>
+</div>
+</body></html>

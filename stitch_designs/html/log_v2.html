@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Signl Log Application V2</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#334155", // Muted cool slate
+                        "background-light": "#FBFBF9", // Warm off-white
+                        "background-dark": "#111621",
+                        "neutral-border": "#e2e2e0",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .thin-border {
+            border-width: 0.5px;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100">
+<div class="relative flex min-h-screen w-full flex-col max-w-md mx-auto bg-background-light dark:bg-background-dark">
+<!-- Header -->
+<header class="flex items-center justify-between px-6 py-8">
+<button class="text-slate-400 hover:text-slate-600 transition-colors">
+<span class="material-symbols-outlined text-2xl">close</span>
+</button>
+<h1 class="text-sm font-semibold tracking-widest uppercase text-slate-400">Signl</h1>
+<div class="w-6"></div> <!-- Spacer for balance -->
+</header>
+<!-- Main Content -->
+<main class="flex-1 px-8 pb-32">
+<div class="mb-12">
+<h2 class="text-3xl font-light tracking-tight text-slate-900 dark:text-slate-100 mb-2">New Opportunity</h2>
+<p class="text-slate-400 font-light text-sm">Fill in the details to track your progress.</p>
+</div>
+<!-- Form -->
+<div class="space-y-8">
+<!-- Company Name -->
+<div class="group">
+<label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2 px-1">Company</label>
+<input class="w-full bg-transparent border-t-0 border-l-0 border-r-0 border-b thin-border border-neutral-border focus:border-primary focus:ring-0 transition-all px-1 py-3 text-lg placeholder:text-slate-300 font-light outline-none" placeholder="e.g. Linear" type="text"/>
+</div>
+<!-- Job Title -->
+<div class="group">
+<label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2 px-1">Position</label>
+<input class="w-full bg-transparent border-t-0 border-l-0 border-r-0 border-b thin-border border-neutral-border focus:border-primary focus:ring-0 transition-all px-1 py-3 text-lg placeholder:text-slate-300 font-light outline-none" placeholder="e.g. Senior Product Designer" type="text"/>
+</div>
+<!-- Stage Selection (Horizontal Scroll Chips) -->
+<div>
+<label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4 px-1">Application Stage</label>
+<div class="flex gap-2 overflow-x-auto hide-scrollbar pb-2 -mx-2 px-2">
+<button class="shrink-0 px-5 py-2 rounded-full border thin-border border-primary bg-primary text-white text-sm font-medium">Applied</button>
+<button class="shrink-0 px-5 py-2 rounded-full border thin-border border-neutral-border text-slate-500 hover:border-slate-400 transition-colors text-sm font-medium">Screening</button>
+<button class="shrink-0 px-5 py-2 rounded-full border thin-border border-neutral-border text-slate-500 hover:border-slate-400 transition-colors text-sm font-medium">Technical</button>
+<button class="shrink-0 px-5 py-2 rounded-full border thin-border border-neutral-border text-slate-500 hover:border-slate-400 transition-colors text-sm font-medium">Onsite</button>
+<button class="shrink-0 px-5 py-2 rounded-full border thin-border border-neutral-border text-slate-500 hover:border-slate-400 transition-colors text-sm font-medium">Offer</button>
+</div>
+</div>
+<!-- Notes / Salary (Optional) -->
+<div class="grid grid-cols-2 gap-8">
+<div class="group">
+<label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2 px-1">Location</label>
+<input class="w-full bg-transparent border-t-0 border-l-0 border-r-0 border-b thin-border border-neutral-border focus:border-primary focus:ring-0 transition-all px-1 py-3 text-base placeholder:text-slate-300 font-light outline-none" placeholder="Remote" type="text"/>
+</div>
+<div class="group">
+<label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2 px-1">Salary Range</label>
+<input class="w-full bg-transparent border-t-0 border-l-0 border-r-0 border-b thin-border border-neutral-border focus:border-primary focus:ring-0 transition-all px-1 py-3 text-base placeholder:text-slate-300 font-light outline-none" placeholder="$140k - $180k" type="text"/>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer / Action Area -->
+<footer class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md p-8 bg-gradient-to-t from-background-light via-background-light to-transparent">
+<button class="w-full h-16 bg-primary text-white rounded-xl font-semibold tracking-wide shadow-xl shadow-slate-200 dark:shadow-none hover:opacity-90 transition-opacity flex items-center justify-center gap-3">
+<span class="material-symbols-outlined text-xl">add_task</span>
+                Log Application
+            </button>
+</footer>
+<!-- iOS Home Indicator Spacing -->
+<div class="h-8 w-full bg-background-light dark:bg-background-dark"></div>
+</div>
+<!-- Background Decoration -->
+<div class="fixed top-0 left-0 w-full h-full pointer-events-none -z-10 opacity-30">
+<div class="absolute top-[10%] left-[5%] w-64 h-64 bg-primary/5 rounded-full blur-3xl"></div>
+<div class="absolute bottom-[20%] right-[5%] w-96 h-96 bg-primary/10 rounded-full blur-3xl"></div>
+</div>
+</body></html>

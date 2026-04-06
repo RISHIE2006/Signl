@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Signl Market Benchmarks V2</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1d56c9",
+                        "background-light": "#FBFBF9",
+                        "background-dark": "#111621",
+                        "neutral-soft": "#F4F4F2",
+                        "slate-accent": "#64748b"
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .thin-border { border-width: 0.5px; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen flex flex-col">
+<!-- Header -->
+<header class="sticky top-0 z-10 bg-background-light/80 backdrop-blur-md px-6 pt-12 pb-4">
+<div class="flex items-center justify-between">
+<span class="material-symbols-outlined text-slate-400">arrow_back_ios</span>
+<h1 class="text-sm font-medium tracking-tight text-slate-500 uppercase">Benchmarks</h1>
+<span class="material-symbols-outlined text-slate-400">more_horiz</span>
+</div>
+</header>
+<main class="flex-1 px-6 pb-24">
+<!-- Hero Section -->
+<section class="mt-8 mb-12">
+<p class="text-xs font-semibold text-primary mb-2">Q3 INDUSTRY REPORT</p>
+<h2 class="text-3xl font-light tracking-tight mb-8">Market Averages</h2>
+<div class="grid grid-cols-2 gap-4">
+<div class="flex flex-col gap-1">
+<p class="text-xs text-slate-500 font-medium">Retention</p>
+<div class="flex items-baseline gap-2">
+<span class="text-4xl font-light tracking-tighter">64.2%</span>
+<span class="text-[10px] text-emerald-600 font-bold">+2.1%</span>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<p class="text-xs text-slate-500 font-medium">Avg. LTV</p>
+<div class="flex items-baseline gap-2">
+<span class="text-4xl font-light tracking-tighter">2.4k</span>
+<span class="text-[10px] text-rose-500 font-bold">-0.4%</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Insights List -->
+<section class="space-y-4">
+<h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Industry Insights</h3>
+<!-- Insight Card 1: Drop-off Rates -->
+<div class="bg-white dark:bg-slate-900 thin-border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm">
+<div class="flex justify-between items-start mb-6">
+<div>
+<h4 class="text-sm font-semibold">Drop-off Rates</h4>
+<p class="text-xs text-slate-500">Anonymized Big Tech comparison</p>
+</div>
+<span class="material-symbols-outlined text-slate-300 text-sm">info</span>
+</div>
+<div class="space-y-4">
+<div class="space-y-1.5">
+<div class="flex justify-between text-[10px] font-medium text-slate-400">
+<span>FAANG AVG</span>
+<span>12.4%</span>
+</div>
+<div class="h-1 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+<div class="h-full bg-slate-300 w-[12.4%]"></div>
+</div>
+</div>
+<div class="space-y-1.5">
+<div class="flex justify-between text-[10px] font-medium text-primary">
+<span>YOUR COMPANY</span>
+<span>18.2%</span>
+</div>
+<div class="h-1 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[18.2%]"></div>
+</div>
+</div>
+<div class="space-y-1.5">
+<div class="flex justify-between text-[10px] font-medium text-slate-400">
+<span>SERIES D AVG</span>
+<span>24.8%</span>
+</div>
+<div class="h-1 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+<div class="h-full bg-slate-300 w-[24.8%]"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Insight Card 2: Success Rates -->
+<div class="bg-white dark:bg-slate-900 thin-border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm">
+<h4 class="text-sm font-semibold mb-1">Success Rates</h4>
+<p class="text-xs text-slate-500 mb-8">Career stage performance delta</p>
+<div class="flex items-end justify-around h-32 gap-4 px-4">
+<div class="flex flex-col items-center gap-3 flex-1">
+<div class="w-full bg-primary/10 border-x border-t border-primary/20 rounded-t-sm relative flex flex-col justify-end" style="height: 65%;">
+<span class="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] font-bold text-primary">65%</span>
+</div>
+<span class="text-[10px] font-medium text-slate-500 uppercase tracking-tighter">Fresher</span>
+</div>
+<div class="flex flex-col items-center gap-3 flex-1">
+<div class="w-full bg-slate-400/10 border-x border-t border-slate-400/20 rounded-t-sm relative flex flex-col justify-end" style="height: 82%;">
+<span class="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] font-bold text-slate-600">82%</span>
+</div>
+<span class="text-[10px] font-medium text-slate-500 uppercase tracking-tighter">Professional</span>
+</div>
+</div>
+</div>
+<!-- Insight Card 3: Market Sentiment -->
+<div class="bg-primary/5 thin-border border-primary/10 rounded-xl p-5 flex items-center gap-4">
+<div class="size-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-primary text-xl">trending_up</span>
+</div>
+<div>
+<h4 class="text-xs font-bold text-primary uppercase tracking-tight">Growth Signal</h4>
+<p class="text-sm text-slate-700 leading-snug">Market liquidity is up 12% in your sector compared to last month.</p>
+</div>
+</div>
+</section>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-background-dark/90 backdrop-blur-xl border-t border-slate-200/50 dark:border-slate-800/50 pb-8 pt-2 px-6">
+<div class="flex items-center justify-between max-w-md mx-auto">
+<a class="flex flex-col items-center gap-1 group" href="#">
+<span class="material-symbols-outlined text-slate-400 group-hover:text-primary">home</span>
+<span class="text-[10px] font-medium text-slate-400 group-hover:text-primary">Home</span>
+</a>
+<a class="flex flex-col items-center gap-1 group" href="#">
+<span class="material-symbols-outlined text-primary fill-[1]">bar_chart</span>
+<span class="text-[10px] font-medium text-primary">Benchmarks</span>
+</a>
+<a class="flex flex-col items-center gap-1 group" href="#">
+<span class="material-symbols-outlined text-slate-400 group-hover:text-primary">lightbulb</span>
+<span class="text-[10px] font-medium text-slate-400 group-hover:text-primary">Insights</span>
+</a>
+<a class="flex flex-col items-center gap-1 group" href="#">
+<span class="material-symbols-outlined text-slate-400 group-hover:text-primary">settings</span>
+<span class="text-[10px] font-medium text-slate-400 group-hover:text-primary">Settings</span>
+</a>
+</div>
+</nav>
+</body></html>
