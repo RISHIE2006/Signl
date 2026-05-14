@@ -6,7 +6,10 @@ import './globals.css';
 
 const mulish = Mulish({ subsets: ['latin'], display: 'swap' });
 
-export const metadata = { title: 'Signl', description: 'Job Rejection Pattern Analyser' };
+export const metadata = { 
+  title: 'Signl — AI Career Intelligence Platform', 
+  description: 'Turn job rejections into data. Signl uses AI to analyze resumes, conduct mock interviews, match jobs, and accelerate your career.' 
+};
 
 export default function RootLayout({ children }) {
   return (

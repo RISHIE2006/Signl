@@ -117,8 +117,6 @@ const BentoCard = ({ children, style, href, accent = 'var(--accent)' }) => {
 };
 
 /* ── FAQ Item ────────────────────────────────────────────────── */
-
-/* ── FAQ Item ────────────────────────────────────────────────── */
 const FAQItem = ({ question, answer }) => {
   const [isOpen, setIsOpen] = useState(false);
   return (
@@ -431,7 +429,7 @@ export default function SignlLandingPage() {
             <div style={{ position: 'absolute', top: '40px', left: '15%', right: '15%', height: '1px', background: 'linear-gradient(90deg, transparent, var(--glass-border), transparent)', zIndex: 0, display: 'none' }} className="md-flex" />
             
             {[
-              { icon: <ArrowUpRight />, title: 'Injest Data', body: 'Upload your global resume. We extract every professional signal and experience point automatically.' },
+              { icon: <ArrowUpRight />, title: 'Ingest Data', body: 'Upload your global resume. We extract every professional signal and experience point automatically.' },
               { icon: <Command />, title: 'AI Synthesis', body: 'Our models analyze your profile vs market benchmarks to identify unique leverage points.' },
               { icon: <Sparkles />, title: 'Accelerate', body: 'Target matching roles, practice with AI personas, and execute your professional move.' },
             ].map((s, i) => (
@@ -556,7 +554,7 @@ export default function SignlLandingPage() {
             <div style={{ background: 'var(--bg-card)', border: '1px solid var(--glass-border)', borderRadius: '24px', padding: '8px 32px', boxShadow: 'var(--shadow-sm)' }}>
               {[
                 { q: "Is my resume data kept private?", a: "Absolutely. We use enterprise-grade encryption and do not share your professional data with 3rd party training sets. You have full control over your stored resume." },
-                { q: "How accurate is the AI matching scoring?", a: "Our models are fine-tuned on real FAANG-level hiring manager evaluations, achieving 98% accuracy in identifying critical skill gaps and market alignment." },
+                { q: "How accurate is the AI matching scoring?", a: "Our models are fine-tuned on real FAANG-level hiring manager evaluations to identify critical skill gaps and market alignment with industry-leading precision." },
                 { q: "Can I use multiple resumes?", a: "We focus on a 'Centralized Resume' approach to ensure the best possible cross-tool consistency, though you can update your master resume at any time in Settings." },
                 { q: "Which job platforms are searched?", a: "Signl aggregates listings from LinkedIn, Indeed, Glassdoor, Wellfound, Naukri, and several niche startup boards to find the best high-intent matches." }
               ].map(item => (
