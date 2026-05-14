@@ -6,7 +6,6 @@
 
 <p align="center">
   <a href="#features">Features</a> •
-  <a href="#screenshots">Screenshots</a> •
   <a href="#tech-stack">Tech Stack</a> •
   <a href="#getting-started">Getting Started</a> •
   <a href="#project-structure">Project Structure</a> •
@@ -23,23 +22,6 @@
 **Signl** is a full-stack Next.js application designed for job seekers who want to approach their career transition with precision, not volume. Instead of blindly mass-applying, Signl uses **Google Gemini AI** to analyze resumes against job descriptions, conduct AI-powered mock interviews, match users with relevant job listings, and provide real-time market intelligence — all within a sleek, premium interface.
 
 > *"Turn rejections into data."*
-
----
-
-## Screenshots
-
-<div align="center">
-  <img src="public/demo-full.webp" alt="Signl Demo Full" width="800" />
-  <br/>
-  <br/>
-  <img src="public/dash-demo.png" alt="Signl Dashboard" width="800" />
-  <br/>
-  <br/>
-  <img src="public/analyser-demo.png" alt="Signl Resume Analyser" width="800" />
-  <br/>
-  <br/>
-  <img src="public/sim-demo.png" alt="Signl Simulation" width="800" />
-</div>
 
 ---
 
