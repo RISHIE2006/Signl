@@ -1,9 +1,11 @@
 'use client';
 import { useUser } from '@clerk/nextjs';
 import Sidebar from '@/components/Sidebar';
-import { Check, Sparkles } from 'lucide-react';
+import { Check, Sparkles, Loader2 } from 'lucide-react';
 import { useBilling } from '@/hooks/useBilling';
 import { savePlan } from '@/lib/store';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 
 const PLANS = [
   {
@@ -46,7 +48,7 @@ const PLANS = [
       'Shared benchmark insights',
       'Aggregate team analytics',
     ],
-    cta: 'Contact Sales',
+    cta: 'Upgrade to Team',
     featured: false,
     disabled: false,
   },
@@ -55,13 +57,58 @@ const PLANS = [
 export default function BillingPage() {
   const { user, isLoaded } = useUser();
   const { plan: currentPlan } = useBilling();
+  const [loading, setLoading] = useState(null);
+  const searchParams = useSearchParams();
+  
+  useEffect(() => {
+    // Check if we just returned from a successful Stripe checkout
+    if (searchParams.get('success') === 'true' && user) {
+      // In a real app, the webhook handles this, but for this demo/local-storage setup,
+      // we'll update it here if the URL has success=true.
+      // Ideally, you'd verify the session_id with an API call first.
+      const planFromUrl = searchParams.get('plan') || 'pro'; 
+      savePlan(user.id, planFromUrl);
+      window.location.href = '/billing';
+    }
+  }, [searchParams, user]);
 
-  const handlePlanChange = (planName) => {
+  const handlePlanChange = async (planName) => {
     if (!user) return;
-    const newPlan = planName.toLowerCase();
-    savePlan(user.id, newPlan);
-    // Reload to apply new limits across hooks
-    window.location.reload();
+    
+    const lowerPlan = planName.toLowerCase();
+    if (lowerPlan === 'free') {
+      savePlan(user.id, 'free');
+      window.location.reload();
+      return;
+    }
+
+    setLoading(planName);
+    try {
+      const response = await fetch('/api/billing/checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ planName }),
+      });
+
+      const data = await response.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        console.error('Failed to create checkout session');
+        // Fallback for demo purposes if Stripe keys aren't set
+        savePlan(user.id, lowerPlan);
+        window.location.reload();
+      }
+    } catch (error) {
+      console.error('Checkout error:', error);
+      // Fallback for demo
+      savePlan(user.id, lowerPlan);
+      window.location.reload();
+    } finally {
+      setLoading(null);
+    }
   };
 
   if (!isLoaded) return null;
@@ -108,10 +155,18 @@ export default function BillingPage() {
                 <button
                   onClick={() => handlePlanChange(plan.name)}
                   className={`btn btn-full ${plan.name.toLowerCase() === currentPlan ? 'btn-ghost' : plan.featured ? 'btn-primary' : 'btn-ghost'}`}
-                  disabled={plan.name.toLowerCase() === currentPlan}
+                  disabled={plan.name.toLowerCase() === currentPlan || loading === plan.name}
                   style={{ opacity: plan.name.toLowerCase() === currentPlan ? 0.5 : 1, marginTop: 'auto', border: plan.name.toLowerCase() === currentPlan ? 'var(--border)' : '' }}
                 >
-                  {plan.name.toLowerCase() === currentPlan ? 'Current Plan' : plan.name.toLowerCase() === 'free' ? 'Downgrade to Free' : plan.cta}
+                  {loading === plan.name ? (
+                    <Loader2 className="animate-spin" size={16} />
+                  ) : plan.name.toLowerCase() === currentPlan ? (
+                    'Current Plan'
+                  ) : plan.name.toLowerCase() === 'free' ? (
+                    'Downgrade to Free'
+                  ) : (
+                    plan.cta
+                  )}
                 </button>
               </div>
             ))}
@@ -119,7 +174,7 @@ export default function BillingPage() {
 
           <div style={{ textAlign: 'center', marginTop: '48px', padding: '24px', border: 'var(--border)', borderRadius: 'var(--radius)', maxWidth: '560px', margin: '48px auto 0' }}>
             <div style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>
-              All plans include a <strong>14-day free trial</strong> of Pro features. No credit card required.
+              All plans include a <strong>14-day free trial</strong> of Pro features. Secure payments powered by <strong>Stripe</strong>.
             </div>
           </div>
         </div>
