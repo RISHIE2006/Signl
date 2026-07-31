@@ -1,9 +1,10 @@
 'use client';
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, startTransition } from 'react';
 import { useUser } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 import Sidebar from '@/components/Sidebar';
 import { getApplications, updateApplication, deleteApplication } from '@/lib/store';
+import { fetchApplications, updateApplicationInDB, deleteApplicationFromDB } from '@/lib/api-store';
 import { FilePlus, Search, Trash2, ChevronRight, SlidersHorizontal, X, Lock } from 'lucide-react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -26,11 +27,6 @@ const container = {
   show: { opacity: 1, transition: { staggerChildren: 0.05 } },
 };
 
-const row = {
-  hidden: { opacity: 0, y: 10 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.3 } },
-};
-
 export default function ApplicationsPage() {
   const { user, isLoaded } = useUser();
   const router = useRouter();
@@ -43,10 +39,17 @@ export default function ApplicationsPage() {
   const { canAddApplication } = useBilling();
 
   useEffect(() => {
-    setMounted(true);
+    startTransition(() => setMounted(true));
     if (!isLoaded) return;
     if (!user) { router.push('/sign-in'); return; }
-    setApps(getApplications(user.id));
+    (async () => {
+      try {
+        const apps = await fetchApplications(user.id);
+        setApps(apps);
+      } catch {
+        setApps(getApplications(user.id));
+      }
+    })();
   }, [user, isLoaded, router]);
 
   const filtered = useMemo(() => {
@@ -59,14 +62,22 @@ export default function ApplicationsPage() {
     });
   }, [apps, stageFilter, search]);
 
-  const changeStage = (appId, newStage) => {
-    updateApplication(user.id, appId, { stage: newStage });
+  const changeStage = async (appId, newStage) => {
+    try {
+      await updateApplicationInDB(appId, { stage: newStage });
+    } catch {
+      updateApplication(user.id, appId, { stage: newStage });
+    }
     setApps(prev => prev.map(a => a.id === appId ? { ...a, stage: newStage } : a));
     setEditingStage(null);
   };
 
-  const handleDelete = (appId) => {
-    deleteApplication(user.id, appId);
+  const handleDelete = async (appId) => {
+    try {
+      await deleteApplicationFromDB(appId);
+    } catch {
+      deleteApplication(user.id, appId);
+    }
     setApps(prev => prev.filter(a => a.id !== appId));
     setDeleteConfirm(null);
   };

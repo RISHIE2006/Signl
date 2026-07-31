@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useUser } from '@clerk/nextjs';
 import Sidebar from '@/components/Sidebar';
 import { addPrep, getPreps, deletePrep } from '@/lib/store';
+import { addPrepToDB, fetchPreps, deletePrepFromDB } from '@/lib/api-store';
 import CompanyAutocomplete from '@/components/CompanyAutocomplete';
 import {
   BrainCircuit, Sparkles, AlertTriangle, Lightbulb,
@@ -128,7 +129,7 @@ function QuestionCard({ q, idx, company, role }) {
 
                   <div style={{ padding: '12px', background: 'var(--bg)', borderRadius: '6px', border: '1px solid var(--border-soft)' }}>
                     <div style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-muted)', marginBottom: '6px' }}>IDEAL SAMPLE ANSWER</div>
-                    <p style={{ fontSize: '13px', color: 'var(--text-primary)', margin: 0, lineHeight: '1.5', fontStyle: 'italic' }}>"{feedback.sampleAnswer}"</p>
+                    <p style={{ fontSize: '13px', color: 'var(--text-primary)', margin: 0, lineHeight: '1.5', fontStyle: 'italic' }}>{'"'}{feedback.sampleAnswer}{'"'}</p>
                   </div>
                 </motion.div>
               )}
@@ -152,7 +153,17 @@ export default function PrepPage() {
   const [showPast, setShowPast] = useState(false);
 
   useEffect(() => {
-    if (user) setPastSessions(getPreps(user.id));
+    const loadPreps = async () => {
+      if (user) {
+        try {
+          const preps = await fetchPreps(user.id);
+          setPastSessions(preps);
+        } catch {
+          setPastSessions(getPreps(user.id));
+        }
+      }
+    };
+    loadPreps();
   }, [user]);
 
   const generate = async () => {
@@ -168,10 +179,15 @@ export default function PrepPage() {
       if (data.error) { setError(data.error); return; }
       setResult(data);
       if (user) {
-        const saved = addPrep(user.id, { company, role, ...data });
-        setPastSessions(prev => [saved, ...prev]);
+        try {
+          const saved = await addPrepToDB(user.id, { company, role, ...data });
+          setPastSessions(prev => [saved, ...prev]);
+        } catch {
+          const saved = addPrep(user.id, { company, role, ...data });
+          setPastSessions(prev => [saved, ...prev]);
+        }
       }
-    } catch (err) {
+    } catch {
       setError('Failed to generate prep. Please try again.');
     } finally {
       setLoading(false);
@@ -238,9 +254,13 @@ export default function PrepPage() {
                     <button
                       className="btn btn-ghost btn-sm"
                       style={{ padding: '6px', marginLeft: '4px', color: 'var(--text-muted)' }}
-                      onClick={(e) => {
+                      onClick={async (e) => {
                         e.stopPropagation();
-                        deletePrep(user.id, s.id);
+                        try {
+                          await deletePrepFromDB(s.id);
+                        } catch {
+                          deletePrep(user.id, s.id);
+                        }
                         setPastSessions(prev => prev.filter(p => p.id !== s.id));
                       }}
                       title="Delete Session"
@@ -287,6 +307,18 @@ export default function PrepPage() {
                 )}
               </button>
             </div>
+            <AnimatePresence>
+              {loading && (
+                <motion.div 
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  style={{ marginTop: '16px', fontSize: '12px', color: 'var(--text-muted)', textAlign: 'center' }}
+                >
+                  Please wait 15-20 seconds while our AI builds your custom prep pack...
+                </motion.div>
+              )}
+            </AnimatePresence>
           </motion.div>
 
           {/* Error */}

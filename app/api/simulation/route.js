@@ -1,5 +1,5 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
 import { NextResponse } from 'next/server';
+import { generateChatWithFallback } from '@/lib/gemini';
 
 export async function POST(req) {
   try {
@@ -8,13 +8,6 @@ export async function POST(req) {
     if (!messages || !Array.isArray(messages)) {
       return NextResponse.json({ error: 'Messages are required.' }, { status: 400 });
     }
-
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-      return NextResponse.json({ error: 'GEMINI_API_KEY is not configured.' }, { status: 500 });
-    }
-
-    const genAI = new GoogleGenerativeAI(apiKey);
 
     const personaPrompts = {
       'The Skeptic': `You're a sharp, detail-oriented interviewer who doesn't let things slide. You dig into every claim, push back on vague answers, and ask pointed follow-ups. You're respectful but direct — think a senior engineering manager who's seen it all. Use natural, modern English. No corporate jargon. Just straight talk.`,
@@ -58,65 +51,26 @@ export async function POST(req) {
       6. Sound like someone the candidate might actually interview with at a top company.${languageInstruction}
     `;
 
-    const model = genAI.getGenerativeModel({ 
-      model: 'gemini-2.0-flash',
-      systemInstruction: systemPrompt
-    });
-
-    // Format messages for Gemini - ensuring history alternates and starts with user
+    // Format history for Gemini — must start with 'user', must alternate
     const chatMessages = messages.filter(m => m.content && m.content.trim());
     const chatHistory = [];
-    
-    // Gemini history must start with 'user'. 
-    // In our app, stage 'chat' starts with messages = [{role: 'assistant', content: ...}] 
-    // but the API was originally called with messages = [userMsg].
-    
     for (let i = 0; i < chatMessages.length - 1; i++) {
       const msg = chatMessages[i];
-      // Skip assistant messages if they are the first item to maintain valid history
       if (chatHistory.length === 0 && msg.role !== 'user') continue;
-      
       chatHistory.push({
         role: msg.role === 'user' ? 'user' : 'model',
         parts: [{ text: msg.content }],
       });
     }
 
-    const chat = model.startChat({
-      history: chatHistory,
-      generationConfig: {
-        maxOutputTokens: 500,
-      },
-    });
-
     const lastMessage = chatMessages[chatMessages.length - 1].content;
-    let result;
-    try {
-      result = await chat.sendMessage(lastMessage);
-    } catch (err) {
-      console.warn('Simulation primary model failed, trying fallbacks...', err);
-      const fallbacks = ['gemini-flash-latest', 'gemini-2.0-flash-lite', 'gemini-2.5-flash', 'gemini-pro-latest'];
-      let lastErr = err;
-      
-      for (const modelId of fallbacks) {
-        try {
-          const fallbackModel = genAI.getGenerativeModel({ 
-            model: modelId,
-            systemInstruction: systemPrompt
-          });
-          const fallbackChat = fallbackModel.startChat({ history: chatHistory });
-          result = await fallbackChat.sendMessage(lastMessage);
-          if (result) break;
-        } catch (e) {
-          lastErr = e;
-          continue;
-        }
-      }
-      if (!result) throw lastErr;
-    }
 
-    const response = await result.response;
-    const text = response.text();
+    const text = await generateChatWithFallback(
+      lastMessage,
+      chatHistory,
+      systemPrompt,
+      { maxOutputTokens: 500 }
+    );
 
     return NextResponse.json({ content: text });
   } catch (err) {

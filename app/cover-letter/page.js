@@ -3,7 +3,8 @@ import { useState, useEffect } from 'react';
 import { useUser } from '@clerk/nextjs';
 import Sidebar from '@/components/Sidebar';
 import { getAnalyses } from '@/lib/store';
-import { Sparkles, Mail, FileText, Copy, Check, ChevronRight, AlertCircle } from 'lucide-react';
+import { fetchAnalyses } from '@/lib/api-store';
+import { Sparkles, Mail, FileText, Copy, Check, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function CoverLetterPage() {
@@ -17,9 +18,17 @@ export default function CoverLetterPage() {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    if (user) {
-      setAnalyses(getAnalyses(user.id));
-    }
+    const loadAnalyses = async () => {
+      if (user) {
+        try {
+          const data = await fetchAnalyses(user.id);
+          setAnalyses(data);
+        } catch {
+          setAnalyses(getAnalyses(user.id));
+        }
+      }
+    };
+    loadAnalyses();
   }, [user]);
 
   const generate = async () => {
@@ -124,6 +133,19 @@ export default function CoverLetterPage() {
                 >
                   {loading ? 'Generating...' : <><Sparkles size={16} /> Generate Outreach</>}
                 </button>
+
+                <AnimatePresence>
+                  {loading && (
+                    <motion.div 
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      style={{ marginTop: '12px', fontSize: '12px', color: 'var(--text-muted)', textAlign: 'center' }}
+                    >
+                      Please wait 15-20 seconds while our AI drafts your outreach...
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             </motion.div>
 

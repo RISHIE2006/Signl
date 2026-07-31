@@ -1,9 +1,8 @@
 'use client';
 import Sidebar from '@/components/Sidebar';
 import { 
-  Chrome, Download, Search, Layout, 
-  Zap, BrainCircuit, ArrowRight, ShieldCheck, 
-  Layers, Command, Monitor
+  Chrome, Layout,
+  Zap, BrainCircuit, Monitor
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 

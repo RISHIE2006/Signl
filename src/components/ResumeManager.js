@@ -2,7 +2,10 @@
 import { useState, useEffect, useRef } from 'react';
 import { useUser } from '@clerk/nextjs';
 import { getResume, saveResume } from '@/lib/store';
-import { FileUp, FileText, X, CheckCircle, AlertCircle, Loader2, Trash2 } from 'lucide-react';
+import { fetchResume, saveResumeToDB } from '@/lib/api-store';
+import { FileUp, FileText, CheckCircle, AlertCircle, Trash2 } from 'lucide-react';
+import Loader from '@/components/Loader';
+
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function ResumeManager({ onUpdate, compact = false }) {
@@ -13,11 +16,20 @@ export default function ResumeManager({ onUpdate, compact = false }) {
   const fileInputRef = useRef(null);
 
   useEffect(() => {
-    if (user) {
-      const savedResume = getResume(user.id);
-      setResume(savedResume);
-      if (onUpdate) onUpdate(savedResume);
-    }
+    const loadResume = async () => {
+      if (user) {
+        try {
+          const savedResume = await fetchResume(user.id);
+          setResume(savedResume);
+          if (onUpdate) onUpdate(savedResume);
+        } catch {
+          const savedResume = getResume(user.id);
+          setResume(savedResume);
+          if (onUpdate) onUpdate(savedResume);
+        }
+      }
+    };
+    loadResume();
   }, [user, onUpdate]);
 
   const handleFileChange = async (e) => {
@@ -61,7 +73,11 @@ export default function ResumeManager({ onUpdate, compact = false }) {
         fileSize: file.size,
       };
 
-      saveResume(user.id, resumeData);
+      try {
+        await saveResumeToDB(resumeData);
+      } catch {
+        saveResume(user.id, resumeData);
+      }
       setResume({ ...resumeData, updatedAt: new Date().toISOString() });
       if (onUpdate) onUpdate(resumeData);
     } catch (err) {
@@ -73,9 +89,13 @@ export default function ResumeManager({ onUpdate, compact = false }) {
     }
   };
 
-  const removeResume = () => {
+  const removeResume = async () => {
     if (window.confirm('Are you sure you want to remove your saved resume?')) {
-      saveResume(user.id, null);
+      try {
+        await saveResumeToDB(null);
+      } catch {
+        saveResume(user.id, null);
+      }
       setResume(null);
       if (onUpdate) onUpdate(null);
     }
@@ -172,7 +192,8 @@ export default function ResumeManager({ onUpdate, compact = false }) {
           >
             {uploading ? (
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
-                <Loader2 size={32} className="animate-spin" color="var(--accent)" />
+                <Loader size="32px" color="var(--accent)" />
+
                 <div style={{ fontSize: '14px', fontWeight: '500' }}>Extracting insights...</div>
               </div>
             ) : (

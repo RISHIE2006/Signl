@@ -1,5 +1,6 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
 import { NextResponse } from 'next/server';
+import { generateWithFallback } from '@/lib/gemini';
+import { robustParseJSON } from '@/lib/json-utils';
 
 export async function POST(req) {
   try {
@@ -9,26 +10,13 @@ export async function POST(req) {
       return NextResponse.json({ error: 'A resume with sufficient content is required.' }, { status: 400 });
     }
 
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey || apiKey === 'your_gemini_api_key') {
-      return NextResponse.json({ error: 'GEMINI_API_KEY is not configured.' }, { status: 500 });
-    }
-
-    const genAI = new GoogleGenerativeAI(apiKey);
-    let model;
-    try {
-      model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
-    } catch {
-      model = genAI.getGenerativeModel({ model: 'gemini-flash-latest' });
-    }
-
     const locationFilter = filters?.location || 'Remote / Global';
-    const typeFilter = filters?.type || 'Any'; // Full-time, Internship, Contract
-    const experienceFilter = filters?.experience || 'Any'; // Entry, Mid, Senior
+    const typeFilter = filters?.type || 'Any';
+    const experienceFilter = filters?.experience || 'Any';
 
     const prompt = `You are an expert recruiter and job board aggregator with deep knowledge of LinkedIn, Indeed, Glassdoor, Internshala, Wellfound (AngelList), and Naukri.
 
-Analyze this resume alongside the user's specific job search goal and generate 30 highly realistic, relevant job openings that are a strong match for this candidate.
+Analyze this resume alongside the user's specific job search goal and generate 25 highly realistic, relevant job openings that are a strong match for this candidate.
 
 SEARCH GOAL:
 "${jobQuery || 'Any relevant roles based on my skills'}"
@@ -74,28 +62,20 @@ Rules:
 - Tags should reflect actual technologies/skills from the resume and job.
 - The output must be perfectly valid JSON only.`;
 
-    let result;
-    try {
-      result = await model.generateContent(prompt);
-    } catch (err) {
-      model = genAI.getGenerativeModel({ model: 'gemini-flash-latest' });
-      result = await model.generateContent(prompt);
-    }
-
-    const text = result.response.text();
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
-      return NextResponse.json({ error: 'Could not parse AI response. Try again.' }, { status: 500 });
-    }
-
-    const parsed = JSON.parse(jsonMatch[0]);
+    const text = await generateWithFallback(prompt);
     
-    // Sort by matchScore descending
-    if (parsed.jobs && Array.isArray(parsed.jobs)) {
-      parsed.jobs.sort((a, b) => b.matchScore - a.matchScore);
+    try {
+      const parsed = robustParseJSON(text);
+      if (parsed.jobs && Array.isArray(parsed.jobs)) {
+        parsed.jobs.sort((a, b) => b.matchScore - a.matchScore);
+      }
+      return NextResponse.json(parsed);
+    } catch (parseError) {
+      console.error('Jobs Search JSON parse error:', parseError);
+      return NextResponse.json({ 
+        error: 'Failed to parse job results. Please try again.'
+      }, { status: 500 });
     }
-
-    return NextResponse.json(parsed);
   } catch (err) {
     console.error('Jobs Search API error:', err);
     return NextResponse.json({ error: err.message || 'Job search failed.' }, { status: 500 });

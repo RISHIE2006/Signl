@@ -4,6 +4,7 @@ import { useUser } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 import Sidebar from '@/components/Sidebar';
 import { addApplication } from '@/lib/store';
+import { addApplicationToDB } from '@/lib/api-store';
 import CompanyAutocomplete from '@/components/CompanyAutocomplete';
 import { CalendarDays, Building2, Briefcase, Link as LinkIcon, FileText, Lock } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -34,11 +35,15 @@ export default function LogApplicationPage() {
 
   const handle = (field) => (e) => setForm(prev => ({ ...prev, [field]: e.target.value }));
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!user || !form.company || !form.role) return;
     setSaving(true);
-    addApplication(user.id, form);
+    try {
+      await addApplicationToDB(form);
+    } catch {
+      addApplication(user.id, form);
+    }
     setSaved(true);
     setTimeout(() => {
       setSaving(false);

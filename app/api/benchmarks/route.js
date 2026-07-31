@@ -1,22 +1,9 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
 import { NextResponse } from 'next/server';
+import { generateWithFallback } from '@/lib/gemini';
 
 export async function POST(req) {
   try {
     const { roles } = await req.json();
-
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey || apiKey === 'your_gemini_api_key') {
-      return NextResponse.json({ error: 'GEMINI_API_KEY is not configured.' }, { status: 500 });
-    }
-
-    const genAI = new GoogleGenerativeAI(apiKey);
-    let model;
-    try {
-      model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
-    } catch {
-      model = genAI.getGenerativeModel({ model: 'gemini-flash-latest' });
-    }
 
     const rolesContext = roles && roles.length > 0 
       ? `The user primarily applies for these roles: ${roles.join(', ')}.` 
@@ -62,15 +49,7 @@ Rules:
 - The stats should reflect the current competitive job market logically (e.g. Resume drop-off is usually highest, Offer rate is usually very low like 2-15%).
 - Ensure the JSON is perfectly formatted.`;
 
-    let result;
-    try {
-      result = await model.generateContent(prompt);
-    } catch (err) {
-      model = genAI.getGenerativeModel({ model: 'gemini-flash-latest' });
-      result = await model.generateContent(prompt);
-    }
-
-    const text = result.response.text();
+    const text = await generateWithFallback(prompt);
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
       return NextResponse.json({ error: 'Could not parse AI response. Try again.' }, { status: 500 });

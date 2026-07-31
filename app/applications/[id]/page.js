@@ -1,9 +1,10 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, startTransition } from 'react';
 import { useUser } from '@clerk/nextjs';
 import { useRouter, useParams } from 'next/navigation';
 import Sidebar from '@/components/Sidebar';
 import { getApplicationById, updateApplication, getAnalyses } from '@/lib/store';
+import { fetchApplicationById, updateApplicationInDB, fetchAnalyses } from '@/lib/api-store';
 import { ArrowLeft, ExternalLink, CheckCircle2, Circle, XCircle, Ghost, Mail, Linkedin, FileText, Sparkles, Copy, Check } from 'lucide-react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -30,33 +31,57 @@ export default function ApplicationDetailPage() {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    if (!isLoaded) return;
-    if (!user) { router.push('/sign-in'); return; }
-    const found = getApplicationById(user.id, appId);
-    if (!found) { router.push('/applications'); return; }
-    setApp(found);
-    setNotes(found.stageNotes || {});
+    const loadData = async () => {
+      if (!isLoaded) return;
+      if (!user) { router.push('/sign-in'); return; }
 
-    // Try to find a matching analysis
-    const allAnalyses = getAnalyses(user.id);
-    const match = allAnalyses.find(a => 
-      a.company?.toLowerCase() === found.company.toLowerCase() || 
-      a.role?.toLowerCase() === found.role.toLowerCase()
-    ) || allAnalyses[0]; // Fallback to latest analysis
-    setAnalysis(match);
+      let found;
+      try {
+        found = await fetchApplicationById(user.id, appId);
+      } catch {
+        found = getApplicationById(user.id, appId);
+      }
+
+      if (!found) { router.push('/applications'); return; }
+      startTransition(() => setApp(found));
+      setNotes(found.stageNotes || {});
+
+      // Try to find a matching analysis
+      let allAnalyses;
+      try {
+        allAnalyses = await fetchAnalyses(user.id);
+      } catch {
+        allAnalyses = getAnalyses(user.id);
+      }
+
+      const match = allAnalyses?.find(a =>
+        a.company?.toLowerCase() === found.company.toLowerCase() ||
+        a.role?.toLowerCase() === found.role.toLowerCase()
+      ) || allAnalyses?.[0];
+      setAnalysis(match);
+    };
+    loadData();
   }, [user, isLoaded, appId, router]);
 
-  const setStage = (stage) => {
+  const setStage = async (stage) => {
     if (!user || !app) return;
-    updateApplication(user.id, app.id, { stage });
+    try {
+      await updateApplicationInDB(app.id, { stage });
+    } catch {
+      updateApplication(user.id, app.id, { stage });
+    }
     setApp(prev => ({ ...prev, stage }));
   };
 
-  const toggleRejectionTag = (tag) => {
+  const toggleRejectionTag = async (tag) => {
     if (!user || !app) return;
     const current = app.rejectionTags || [];
     const updated = current.includes(tag) ? current.filter(t => t !== tag) : [...current, tag];
-    updateApplication(user.id, app.id, { rejectionTags: updated });
+    try {
+      await updateApplicationInDB(app.id, { rejectionTags: updated });
+    } catch {
+      updateApplication(user.id, app.id, { rejectionTags: updated });
+    }
     setApp(prev => ({ ...prev, rejectionTags: updated }));
   };
 
@@ -64,9 +89,13 @@ export default function ApplicationDetailPage() {
     setNotes(prev => ({ ...prev, [stage]: value }));
     // debounce autosave
     clearTimeout(notesTimer[stage]);
-    const t = setTimeout(() => {
+    const t = setTimeout(async () => {
       const merged = { ...notes, [stage]: value };
-      updateApplication(user.id, app.id, { stageNotes: merged });
+      try {
+        await updateApplicationInDB(app.id, { stageNotes: merged });
+      } catch {
+        updateApplication(user.id, app.id, { stageNotes: merged });
+      }
     }, 700);
     setNotesTimer(prev => ({ ...prev, [stage]: t }));
   };

@@ -1,11 +1,12 @@
 'use client';
-import { useState, useRef } from 'react';
+import { useRef, useState } from 'react';
 import { useUser } from '@clerk/nextjs';
 import Sidebar from '@/components/Sidebar';
 import ResumeManager from '@/components/ResumeManager';
+import TailoredResumePreview from '@/components/TailoredResumePreview';
 import {
   Search, Briefcase, MapPin, Clock, DollarSign, Sparkles,
-  ExternalLink, AlertCircle, FileUp, FileText, X, Zap,
+  ExternalLink, AlertCircle, FileUp, Zap,
   Filter, ChevronDown, Star, TrendingUp, Building2, Globe
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -48,9 +49,24 @@ function ScoreBadge({ score }) {
   );
 }
 
-function JobCard({ job, index }) {
+function JobCard({ job, index, onTailor, isTailoring }) {
   const [expanded, setExpanded] = useState(false);
   const platformColor = PLATFORM_COLORS[job.platform] || 'var(--accent)';
+
+  const getSearchUrl = (platform, title, company) => {
+    const query = encodeURIComponent(`${title} ${company}`);
+    switch(platform) {
+      case 'LinkedIn': return `https://www.linkedin.com/jobs/search/?keywords=${query}`;
+      case 'Indeed': return `https://in.indeed.com/jobs?q=${query}`;
+      case 'Glassdoor': return `https://www.glassdoor.com/Job/jobs.htm?sc.keyword=${query}`;
+      case 'Naukri': return `https://www.naukri.com/jobs-in-india?k=${query}`;
+      case 'Internshala': return `https://www.google.com/search?q=${encodeURIComponent('site:internshala.com ' + title)}`;
+      case 'Wellfound': return `https://wellfound.com/jobs`;
+      default: return `https://www.google.com/search?q=${encodeURIComponent(title + ' ' + company + ' jobs ' + platform)}`;
+    }
+  };
+
+  const safeApplyUrl = getSearchUrl(job.platform, job.title, job.company);
 
   return (
     <motion.div
@@ -178,29 +194,50 @@ function JobCard({ job, index }) {
           <span>{PLATFORM_ICONS[job.platform] || '🔗'}</span>
           <span style={{ color: platformColor, fontWeight: '600' }}>{job.platform}</span>
         </div>
-        <a
-          href={job.applyUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{
-            display: 'inline-flex', alignItems: 'center', gap: '5px',
-            background: platformColor, color: '#fff',
-            borderRadius: '8px', fontSize: '12px', fontWeight: '600',
-            padding: '7px 14px', textDecoration: 'none',
-            transition: 'opacity 0.15s'
-          }}
-          onMouseEnter={e => e.currentTarget.style.opacity = '0.85'}
-          onMouseLeave={e => e.currentTarget.style.opacity = '1'}
-        >
-          Apply Now <ExternalLink size={11} />
-        </a>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <button
+            onClick={() => onTailor(job)}
+            disabled={isTailoring}
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: '5px',
+              background: 'var(--bg-secondary)', color: 'var(--text-primary)',
+              border: '1px solid var(--border)', borderRadius: '8px',
+              fontSize: '12px', fontWeight: '600', padding: '7px 14px',
+              cursor: isTailoring ? 'not-allowed' : 'pointer',
+              opacity: isTailoring ? 0.7 : 1,
+            }}
+          >
+            {isTailoring ? (
+              <div className="loading-spinner" style={{ width: '12px', height: '12px', borderWidth: '2px' }} />
+            ) : (
+              <Sparkles size={11} color="var(--accent)" />
+            )}
+            Tailor Resume
+          </button>
+          <a
+            href={safeApplyUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: '5px',
+              background: platformColor, color: '#fff',
+              borderRadius: '8px', fontSize: '12px', fontWeight: '600',
+              padding: '7px 14px', textDecoration: 'none',
+              transition: 'opacity 0.15s'
+            }}
+            onMouseEnter={e => e.currentTarget.style.opacity = '0.85'}
+            onMouseLeave={e => e.currentTarget.style.opacity = '1'}
+          >
+            Apply Now <ExternalLink size={11} />
+          </a>
+        </div>
       </div>
     </motion.div>
   );
 }
 
 export default function JobsPage() {
-  const { user } = useUser();
+  useUser();
   const [step, setStep] = useState('upload'); // 'upload' | 'results'
   const [resumeData, setResumeData] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -211,6 +248,42 @@ export default function JobsPage() {
   const [search, setSearch] = useState('');
   const [jobQuery, setJobQuery] = useState('');
   const [loadingMore, setLoadingMore] = useState(false);
+  const [tailoringInfo, setTailoringInfo] = useState({ loadingForId: null, data: null, error: null, requestId: null, jobKey: null });
+  const activeTailorRequestRef = useRef(null);
+
+  const tailorForJob = async (job) => {
+    if (!resumeData?.text) return;
+
+    const jobKey = job.id || `${job.title}-${job.company}`;
+    const requestId = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    activeTailorRequestRef.current = requestId;
+
+    setTailoringInfo({ loadingForId: jobKey, data: null, error: null, requestId, jobKey });
+    
+    try {
+      const fakeJd = `Role: ${job.title}\nCompany: ${job.company}\nDescription: ${job.description}\nSkills: ${job.tags?.join(', ')}`;
+      const res = await fetch('/api/analyse', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ resume: resumeData.text, jd: fakeJd }),
+      });
+      
+      if (!res.ok) throw new Error('Analysis failed');
+      const data = await res.json();
+      
+      if (activeTailorRequestRef.current !== requestId) return;
+      if (data.tailoredResume) {
+        setTailoringInfo({ loadingForId: null, data: data.tailoredResume, error: null, requestId, jobKey });
+      } else {
+        throw new Error('Failed to generate tailored resume');
+      }
+    } catch (err) {
+      console.error(err);
+      if (activeTailorRequestRef.current !== requestId) return;
+      setTailoringInfo({ loadingForId: null, data: null, error: 'Failed to tailor', requestId, jobKey });
+      alert('Failed to tailor resume: ' + err.message);
+    }
+  };
 
 
   const extractAndSearch = async () => {
@@ -219,6 +292,8 @@ export default function JobsPage() {
     setLoading(true);
     setError('');
     setJobs([]); // Reset for new search
+    setTailoringInfo({ loadingForId: null, data: null, error: null, requestId: null, jobKey: null });
+    activeTailorRequestRef.current = null;
     try {
       const textToUse = resumeData.text;
 
@@ -341,7 +416,7 @@ export default function JobsPage() {
                       style={{ fontSize: '14px', padding: '12px 14px' }}
                     />
                     <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '6px' }}>
-                      We'll use this along with your resume to find the best matches.
+                      We&apos;ll use this along with your resume to find the best matches.
                     </p>
                   </div>
 
@@ -414,7 +489,7 @@ export default function JobsPage() {
 
                   {loading && (
                     <p style={{ textAlign: 'center', fontSize: '12px', color: 'var(--text-muted)', marginTop: '10px' }}>
-                      Analysing resume → Searching LinkedIn, Indeed, Glassdoor, Wellfound &amp; more...
+                      Analyzing resume → Searching job boards... Please wait 15–20 seconds.
                     </p>
                   )}
                 </div>
@@ -427,7 +502,14 @@ export default function JobsPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4 }}
               >
-                {/* Results top bar */}
+                {tailoringInfo.data ? (
+                  <TailoredResumePreview 
+                    data={tailoringInfo.data} 
+                    onBack={() => setTailoringInfo({ loadingForId: null, data: null, error: null, requestId: null, jobKey: null })} 
+                  />
+                ) : (
+                  <>
+                    {/* Results top bar */}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px', flexWrap: 'wrap', gap: '12px' }}>
                   <div>
                     <div style={{ fontSize: '16px', fontWeight: '600', marginBottom: '2px' }}>
@@ -502,7 +584,13 @@ export default function JobsPage() {
                   <>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))', gap: '16px', marginBottom: '32px' }}>
                       {displayed.map((job, i) => (
-                        <JobCard key={job.id || `${job.title}-${job.company}-${i}`} job={job} index={i} />
+                        <JobCard 
+                          key={job.id || `${job.title}-${job.company}-${i}`} 
+                          job={job} 
+                          index={i} 
+                          onTailor={tailorForJob}
+                          isTailoring={tailoringInfo.loadingForId === (job.id || `${job.title}-${job.company}`) && tailoringInfo.jobKey === (job.id || `${job.title}-${job.company}`)}
+                        />
                       ))}
                     </div>
 
@@ -530,6 +618,8 @@ export default function JobsPage() {
                     <h3>No jobs match your filter</h3>
                     <p>Try clearing the search or changing the type filter.</p>
                   </div>
+                )}
+                  </>
                 )}
               </motion.div>
             )}

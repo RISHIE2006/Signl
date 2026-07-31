@@ -1,5 +1,5 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
 import { NextResponse } from 'next/server';
+import { generateChatWithFallback } from '@/lib/gemini';
 
 export async function POST(req) {
   try {
@@ -11,14 +11,6 @@ export async function POST(req) {
       currentCode,
       currentCodeLanguage
     } = await req.json();
-
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-      return NextResponse.json({ error: 'GEMINI_API_KEY is not configured.' }, { status: 500 });
-    }
-
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
     let roundContext = '';
     
@@ -52,19 +44,24 @@ export async function POST(req) {
       Do NOT break character. Do not provide disclaimers.
     `;
 
-    const formattedHistory = messages.map(m => ({
+    const chatMessages = messages.filter(m => m.content && m.content.trim());
+    const formattedHistory = chatMessages.map(m => ({
       role: m.role === 'user' ? 'user' : 'model',
       parts: [{ text: m.content }]
     }));
 
-    const chat = model.startChat({
-      history: formattedHistory.length > 1 ? formattedHistory.slice(0, -1) : [],
-    });
+    const historyWithoutCurrentTurn = formattedHistory.length > 1 ? formattedHistory.slice(0, -1) : [];
+    const chatHistory = [];
+    for (const entry of historyWithoutCurrentTurn) {
+      if (chatHistory.length === 0 && entry.role !== 'user') continue;
+      chatHistory.push(entry);
+    }
 
-    const lastMessage = formattedHistory[formattedHistory.length - 1].parts[0].text;
-    const result = await chat.sendMessage(systemPrompt + '\n\nCandidate says:\n' + lastMessage);
+    const lastMessage = systemPrompt + '\n\nCandidate says:\n' + formattedHistory[formattedHistory.length - 1].parts[0].text;
 
-    return NextResponse.json({ content: result.response.text() });
+    const text = await generateChatWithFallback(lastMessage, chatHistory, systemPrompt);
+
+    return NextResponse.json({ content: text });
   } catch (error) {
     console.error('Pipeline Simulation API error:', error);
     return NextResponse.json({ error: error.message || 'Failed to generate response' }, { status: 500 });

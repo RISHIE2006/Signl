@@ -1,5 +1,6 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
 import { NextResponse } from 'next/server';
+import { generateWithFallback } from '@/lib/gemini';
+import { robustParseJSON } from '@/lib/json-utils';
 
 export async function POST(req) {
   try {
@@ -7,19 +8,6 @@ export async function POST(req) {
 
     if (!company || !role) {
       return NextResponse.json({ error: 'Company and role are required.' }, { status: 400 });
-    }
-
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey || apiKey === 'your_gemini_api_key') {
-      return NextResponse.json({ error: 'GEMINI_API_KEY is not configured.' }, { status: 500 });
-    }
-
-    const genAI = new GoogleGenerativeAI(apiKey);
-    let model;
-    try {
-      model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
-    } catch {
-      model = genAI.getGenerativeModel({ model: 'gemini-flash-latest' });
     }
 
     const prompt = `You are an elite interview coach specialising in ${role} roles at ${company}.
@@ -47,22 +35,17 @@ Rules:
 - redFlags: exactly 3 red flags
 - Be concrete, specific, and non-generic. Do not give textbook answers.`;
 
-    let result;
+    const text = await generateWithFallback(prompt);
+    
     try {
-      result = await model.generateContent(prompt);
-    } catch (err) {
-      model = genAI.getGenerativeModel({ model: 'gemini-flash-latest' });
-      result = await model.generateContent(prompt);
+      const parsed = robustParseJSON(text);
+      return NextResponse.json(parsed);
+    } catch (parseError) {
+      console.error('Prep JSON parse error:', parseError);
+      return NextResponse.json({ 
+        error: 'Failed to generate interview prep. Please try again.'
+      }, { status: 500 });
     }
-
-    const text = result.response.text();
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
-      return NextResponse.json({ error: 'Could not parse AI response. Try again.' }, { status: 500 });
-    }
-
-    const parsed = JSON.parse(jsonMatch[0]);
-    return NextResponse.json(parsed);
   } catch (err) {
     console.error('Prep API error:', err);
     return NextResponse.json({ error: err.message || 'Prep generation failed.' }, { status: 500 });

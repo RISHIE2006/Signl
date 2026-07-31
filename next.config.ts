@@ -3,9 +3,7 @@ const nextConfig = {
   images: {
     remotePatterns: [{ protocol: 'https', hostname: 'img.clerk.com' }],
   },
-  experimental: {
-    serverComponentsExternalPackages: ['pdf-parse'],
-  },
+  serverExternalPackages: ['pdf-parse', 'better-sqlite3'],
 };
 
 export default nextConfig;

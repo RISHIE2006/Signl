@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUser } from '@clerk/nextjs';
 import { saveProfile } from '@/lib/store';
+import { saveProfileToDB } from '@/lib/api-store';
 import { Briefcase, GraduationCap, ChevronRight, Check } from 'lucide-react';
 
 const SUGGESTED_ROLES = [
@@ -37,7 +38,11 @@ export default function OnboardingPage() {
   const handleFinish = async () => {
     if (!user) return;
     setSaving(true);
-    saveProfile(user.id, { status, targetRoles: selectedRoles });
+    try {
+      await saveProfileToDB({ status, targetRoles: selectedRoles });
+    } catch {
+      saveProfile(user.id, { status, targetRoles: selectedRoles });
+    }
     router.push('/dashboard');
   };
 

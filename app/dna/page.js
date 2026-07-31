@@ -3,11 +3,12 @@ import { useUser } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 import Sidebar from '@/components/Sidebar';
 import { getDNA } from '@/lib/store';
+import { fetchDNA } from '@/lib/api-store';
 import { motion } from 'framer-motion';
-import { Activity, Zap, Layers, Volume2, SearchCode, PieChart as PieChartIcon } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { Activity, Volume2, SearchCode, PieChart as PieChartIcon } from 'lucide-react';
+import { useEffect, useState, startTransition } from 'react';
 import {
-  Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
+  Radar, RadarChart, PolarGrid, PolarAngleAxis,
   ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip
 } from 'recharts';
 
@@ -17,35 +18,44 @@ export default function DNAPage() {
   const [dna, setDna] = useState(null);
 
   useEffect(() => {
-    if (!isLoaded) return;
-    if (!user) { router.push('/sign-in'); return; }
-    
-    // Simulate getting DNA data or setting default mock if no data exists
-    let userDna = getDNA(user.id);
-    if (!userDna) {
-      userDna = {
-        radar: [
-          { subject: 'Clarity', A: 85, fullMark: 100 },
-          { subject: 'Technical Depth', A: 70, fullMark: 100 },
-          { subject: 'Conciseness', A: 65, fullMark: 100 },
-          { subject: 'Confidence', A: 90, fullMark: 100 },
-          { subject: 'STAR Structure', A: 60, fullMark: 100 },
-        ],
-        fillers: [
-          { word: 'like', count: 42 },
-          { word: 'um', count: 35 },
-          { word: 'basically', count: 18 },
-          { word: 'you know', count: 14 }
-        ],
-        paceTrend: [
-          { session: '1', wpm: 120 }, { session: '2', wpm: 135 },
-          { session: '3', wpm: 140 }, { session: '4', wpm: 128 },
-          { session: '5', wpm: 150 },
-        ],
-        summary: "You speak with high confidence and strong clarity, but frequently drop the 'Result' in a STAR format. Your primary filler word is 'like'. You tend to speak faster during technical questions."
-      };
-    }
-    setDna(userDna);
+    const loadDNA = async () => {
+      if (!isLoaded) return;
+      if (!user) { router.push('/sign-in'); return; }
+
+      // Simulate getting DNA data or setting default mock if no data exists
+      let userDna;
+      try {
+        userDna = await fetchDNA(user.id);
+      } catch {
+        userDna = getDNA(user.id);
+      }
+
+      if (!userDna) {
+        userDna = {
+          radar: [
+            { subject: 'Clarity', A: 85, fullMark: 100 },
+            { subject: 'Technical Depth', A: 70, fullMark: 100 },
+            { subject: 'Conciseness', A: 65, fullMark: 100 },
+            { subject: 'Confidence', A: 90, fullMark: 100 },
+            { subject: 'STAR Structure', A: 60, fullMark: 100 },
+          ],
+          fillers: [
+            { word: 'like', count: 42 },
+            { word: 'um', count: 35 },
+            { word: 'basically', count: 18 },
+            { word: 'you know', count: 14 }
+          ],
+          paceTrend: [
+            { session: '1', wpm: 120 }, { session: '2', wpm: 135 },
+            { session: '3', wpm: 140 }, { session: '4', wpm: 128 },
+            { session: '5', wpm: 150 },
+          ],
+          summary: "You speak with high confidence and strong clarity, but frequently drop the 'Result' in a STAR format. Your primary filler word is 'like'. You tend to speak faster during technical questions."
+        };
+      }
+      startTransition(() => setDna(userDna));
+    };
+    loadDNA();
   }, [user, isLoaded, router]);
 
   if (!isLoaded || !dna) return null;

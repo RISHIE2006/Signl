@@ -1,0 +1,12 @@
+▲ Next.js 16.1.7 (webpack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.1.6:3000
+- Environments: .env.local
+
+✓ Starting...
+⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+✓ Ready in 23.8s
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (194kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+○ Compiling / ...
+ GET / 200 in 559ms (compile: 65ms, proxy.ts: 154ms, render: 341ms)
+ GET /database-demo 404 in 3.2s (compile: 2.4s, proxy.ts: 181ms, render: 573ms)

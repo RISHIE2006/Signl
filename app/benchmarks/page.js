@@ -2,7 +2,8 @@
 import { useEffect, useState } from 'react';
 import { useUser } from '@clerk/nextjs';
 import Sidebar from '@/components/Sidebar';
-import { getApplications, getProfile, getBenchmarks, saveBenchmarks } from '@/lib/store';
+import { getApplications, getBenchmarks, saveBenchmarks } from '@/lib/store';
+import { fetchApplications, fetchBenchmarks as fetchBenchmarksApi, saveBenchmarksToDB } from '@/lib/api-store';
 import { TrendingDown, Users, Building2, RefreshCw } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -21,7 +22,7 @@ const item = {
 export default function BenchmarksPage() {
   const { user, isLoaded } = useUser();
   const [apps, setApps] = useState([]);
-  const [profile, setProfile] = useState(null);
+
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -30,11 +31,20 @@ export default function BenchmarksPage() {
     if (!user) return;
     
     if (!forceRefresh) {
-      const cached = getBenchmarks(user.id);
-      if (cached && cached.fetchedAt) {
-        setData(cached);
-        setLoading(false);
-        return;
+      try {
+        const cached = await fetchBenchmarksApi(user.id);
+        if (cached && cached.fetchedAt) {
+          setData(cached);
+          setLoading(false);
+          return;
+        }
+      } catch {
+        const cached = getBenchmarks(user.id);
+        if (cached && cached.fetchedAt) {
+          setData(cached);
+          setLoading(false);
+          return;
+        }
       }
     }
     
@@ -42,7 +52,12 @@ export default function BenchmarksPage() {
     if (!data) setLoading(true);
 
     try {
-      const appsData = getApplications(user.id) || [];
+      let appsData;
+      try {
+        appsData = await fetchApplications(user.id) || [];
+      } catch {
+        appsData = getApplications(user.id) || [];
+      }
       const safeAppsData = Array.isArray(appsData) ? appsData : [];
       const uniqueRoles = [...new Set(safeAppsData.map(a => a.role).filter(Boolean))].slice(0, 3);
 
@@ -56,7 +71,11 @@ export default function BenchmarksPage() {
         const result = await res.json();
         result.fetchedAt = new Date().toISOString();
         setData(result);
-        saveBenchmarks(user.id, result);
+        try {
+          await saveBenchmarksToDB(result);
+        } catch {
+          saveBenchmarks(user.id, result);
+        }
       } else {
         const errorText = await res.text();
         console.error("Benchmarks API returned an error:", res.status, errorText);
@@ -70,11 +89,18 @@ export default function BenchmarksPage() {
   };
 
   useEffect(() => {
-    if (!isLoaded || !user) return;
-    const userApps = getApplications(user.id) || [];
-    setApps(Array.isArray(userApps) ? userApps : []);
-    setProfile(getProfile(user.id));
-    fetchBenchmarks();
+    const loadData = async () => {
+      if (!isLoaded || !user) return;
+      try {
+        const userApps = await fetchApplications(user.id) || [];
+        setApps(Array.isArray(userApps) ? userApps : []);
+      } catch {
+        const userApps = getApplications(user.id) || [];
+        setApps(Array.isArray(userApps) ? userApps : []);
+      }
+      fetchBenchmarks();
+    };
+    loadData();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoaded, user]);
 
@@ -120,7 +146,7 @@ export default function BenchmarksPage() {
             {loading ? (
               <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="card empty-state" style={{ padding: '80px 20px' }}>
                 <div className="loading-spinner" style={{ marginBottom: '16px', width: '24px', height: '24px', borderWidth: '3px' }} />
-                <p>Analyzing current job market data using AI...</p>
+                <p>Analyzing current job market data using AI... Please wait 15-20 seconds.</p>
               </motion.div>
             ) : data ? (
               <motion.div key="content" variants={container} initial="hidden" animate="show">

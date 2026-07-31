@@ -1,0 +1,21 @@
+▲ Next.js 16.1.7 (webpack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.1.6:3000
+- Environments: .env.local
+
+✓ Starting...
+⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+✓ Ready in 6.4s
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (194kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+○ Compiling / ...
+Error: Failed to find Server Action "00266afeafbf5ae22b44ad5b44b697c92710ce1b20". This request might be from an older or newer deployment.
+Read more: https://nextjs.org/docs/messages/failed-to-find-server-action
+    at ignore-listed frames
+ POST / 404 in 23.1s (compile: 20.7s, proxy.ts: 1359ms, render: 979ms)
+ GET / 200 in 24.9s (compile: 20.7s, proxy.ts: 1363ms, render: 2.8s)
+ GET /api/db/stats 404 in 13.5s (compile: 12.9s, proxy.ts: 646ms, render: 46ms)
+ GET /api/db/stats 404 in 145ms (compile: 21ms, proxy.ts: 31ms, render: 94ms)
+ GET /dashboard 200 in 3.6s (compile: 2.2s, proxy.ts: 1170ms, render: 236ms)
+ GET /billing 200 in 2.2s (compile: 2000ms, proxy.ts: 74ms, render: 146ms)
+○ Compiling /log ...
+ GET /log 200 in 3.9s (compile: 3.7s, proxy.ts: 53ms, render: 177ms)

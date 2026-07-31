@@ -9,9 +9,17 @@ const eslintConfig = defineConfig([
   globalIgnores([
     // Default ignores of eslint-config-next:
     ".next/**",
+    "node_modules/**",
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Local generated/runtime artifacts.
+    ".obsidian/**",
+    "coverage/**",
+    "data/**",
+    "reports/**",
+    "stitch_designs/**",
+    "*.log",
   ]),
 ]);
 

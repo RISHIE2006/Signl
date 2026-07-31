@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, startTransition } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Building2 } from 'lucide-react';
 
@@ -12,7 +12,7 @@ export default function CompanyAutocomplete({ value, onChange, placeholder = "e.
 
   // Update internal query if value prop changes externally
   useEffect(() => {
-    setQuery(value || '');
+    startTransition(() => setQuery(value || ''));
   }, [value]);
 
   // Click outside to close
@@ -30,7 +30,7 @@ export default function CompanyAutocomplete({ value, onChange, placeholder = "e.
   useEffect(() => {
     const trimmed = query.trim();
     if (!trimmed) {
-      setResults([]);
+      startTransition(() => setResults([]));
       return;
     }
     
@@ -45,8 +45,7 @@ export default function CompanyAutocomplete({ value, onChange, placeholder = "e.
         const res = await fetch(`https://autocomplete.clearbit.com/v1/companies/suggest?query=${encodeURIComponent(trimmed)}`);
         if (res.ok) {
           const data = await res.json();
-          setResults(data);
-          setIsOpen(data.length > 0);
+          startTransition(() => { setResults(data); setIsOpen(data.length > 0); });
         }
       } catch (err) {
         console.error('Failed to fetch companies', err);

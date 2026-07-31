@@ -1,6 +1,6 @@
 'use client';
 import { motion } from 'framer-motion';
-import { FileText, Copy, Check, Sparkles, Download, ArrowLeft } from 'lucide-react';
+import { Copy, Check, Sparkles, ArrowLeft } from 'lucide-react';
 import { useState } from 'react';
 
 export default function TailoredResumePreview({ data, onBack }) {

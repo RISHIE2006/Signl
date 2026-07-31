@@ -4,6 +4,17 @@ import { useUser } from '@clerk/nextjs';
 import Sidebar from '@/components/Sidebar';
 import ResumeManager from '@/components/ResumeManager';
 import { clearAllData } from '@/lib/store';
+import {
+  clearAllDataInDB,
+  fetchAnalyses,
+  fetchApplications,
+  fetchBenchmarks,
+  fetchDNA,
+  fetchPreps,
+  fetchProfile,
+  fetchResume,
+} from '@/lib/api-store';
+import Image from 'next/image';
 import { UserCircle, Lock, Database, Bell, FileText } from 'lucide-react';
 
 const NAV_ITEMS = [
@@ -31,10 +42,14 @@ export default function SettingsPage() {
 
   const togglePref = (key) => setPrefs(prev => ({ ...prev, [key]: !prev[key] }));
 
-  const handleClear = () => {
+  const handleClear = async () => {
     if (!user) return;
     if (window.confirm('This will permanently delete all your logged applications and analyses. Are you sure?')) {
-      clearAllData(user.id);
+      try {
+        await clearAllDataInDB();
+      } catch {
+        clearAllData(user.id);
+      }
       setCleared(true);
     }
   };
@@ -67,7 +82,7 @@ export default function SettingsPage() {
                 <h2 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '32px' }}>Account</h2>
                 <div className="card" style={{ marginBottom: '16px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '20px' }}>
-                    {user?.imageUrl && <img src={user.imageUrl} alt="Profile" style={{ width: '48px', height: '48px', borderRadius: '50%', objectFit: 'cover' }} />}
+                    {user?.imageUrl && <Image src={user.imageUrl} alt="Profile" width={48} height={48} style={{ borderRadius: '50%', objectFit: 'cover' }} />}
                     <div>
                       <div style={{ fontWeight: '600' }}>{user?.fullName || 'Unknown'}</div>
                       <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>{user?.primaryEmailAddress?.emailAddress}</div>
@@ -115,22 +130,28 @@ export default function SettingsPage() {
             {activeSection === 'data' && (
               <div>
                 <h2 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '8px' }}>Data Management</h2>
-                <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginBottom: '28px' }}>Your data is stored locally in your browser.</p>
+                <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginBottom: '28px' }}>Your data is stored securely in your account database.</p>
                 <div className="card" style={{ marginBottom: '16px' }}>
                   <div style={{ fontWeight: '500', marginBottom: '6px' }}>Export Data</div>
                   <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '16px' }}>Download all your application data as JSON.</p>
                   <button
                     className="btn btn-ghost btn-sm"
-                    onClick={() => {
+                    onClick={async () => {
                       const data = {
-                        profile: JSON.parse(localStorage.getItem(`signl_${user?.id}_profile`) || 'null'),
-                        applications: JSON.parse(localStorage.getItem(`signl_${user?.id}_applications`) || '[]'),
-                        analyses: JSON.parse(localStorage.getItem(`signl_${user?.id}_analyses`) || '[]'),
+                        profile: await fetchProfile(),
+                        applications: await fetchApplications(),
+                        analyses: await fetchAnalyses(),
+                        preps: await fetchPreps(),
+                        benchmarks: await fetchBenchmarks(),
+                        dna: await fetchDNA(),
+                        resume: await fetchResume(),
+                        exportedAt: new Date().toISOString(),
                       };
                       const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
                       const url = URL.createObjectURL(blob);
                       const a = document.createElement('a');
                       a.href = url; a.download = 'signl-data.json'; a.click();
+                      URL.revokeObjectURL(url);
                     }}
                   >
                     Export as JSON
@@ -140,7 +161,7 @@ export default function SettingsPage() {
                 <div className="card" style={{ borderColor: 'var(--danger)' }}>
                   <div style={{ fontWeight: '500', marginBottom: '6px', color: 'var(--danger)' }}>Danger Zone</div>
                   <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '16px' }}>
-                    This will permanently delete all your logged applications, analyses, and profile data from this browser.
+                    This will permanently delete your account data from the Signl database.
                   </p>
                   {cleared ? (
                     <div style={{ color: 'var(--success)', fontSize: '13px' }}>✓ All data cleared.</div>

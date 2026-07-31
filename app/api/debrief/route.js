@@ -1,5 +1,5 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
 import { NextResponse } from 'next/server';
+import { generateWithFallback } from '@/lib/gemini';
 
 export async function POST(req) {
   try {
@@ -9,14 +9,6 @@ export async function POST(req) {
       return NextResponse.json({ error: 'No interview history found. Please conduct the interview before finishing.' }, { status: 400 });
     }
 
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-      return NextResponse.json({ error: 'GEMINI_API_KEY is not configured.' }, { status: 500 });
-    }
-
-    const genAI = new GoogleGenerativeAI(apiKey);
-    
-    // Format history for the prompt
     const sessionSummary = messages.map((m) => 
       `${m.role === 'user' ? 'Candidate' : 'Interviewer'}: ${m.content}`
     ).join('\n\n');
@@ -82,26 +74,8 @@ Avoid generic advice. Be specific to the transcript provided.
 Return ONLY valid JSON. Nothing else.
 `;
 
-    let result;
-    const fallbacks = ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-flash-latest', 'gemini-pro-latest'];
-    let lastError;
+    const text = await generateWithFallback(prompt);
 
-    for (const modelId of fallbacks) {
-      try {
-        const currentModel = genAI.getGenerativeModel({ model: modelId });
-        result = await currentModel.generateContent(prompt);
-        if (result) break;
-      } catch (err) {
-        lastError = err;
-        console.warn(`Debrief fallback model ${modelId} failed:`, err.message);
-        continue;
-      }
-    }
-
-    if (!result) throw lastError;
-
-    let text = result.response.text();
-    
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
       console.error('AI response did not contain JSON:', text);
@@ -111,7 +85,7 @@ Return ONLY valid JSON. Nothing else.
     try {
       const parsed = JSON.parse(jsonMatch[0]);
       return NextResponse.json(parsed);
-    } catch (parseError) {
+    } catch {
       console.error('Debrief JSON parse error. Raw text:', jsonMatch[0]);
       return NextResponse.json({ error: 'Failed to parse AI feedback' }, { status: 500 });
     }

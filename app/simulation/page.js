@@ -6,10 +6,8 @@ import ResumeManager from '@/components/ResumeManager';
 import CompanyAutocomplete from '@/components/CompanyAutocomplete';
 import DebriefSection from '@/components/DebriefSection';
 import { 
-  Send, Sparkles, User, Bot, AlertCircle, 
-  ChevronRight, BrainCircuit, Trophy, MessageSquare,
-  ClipboardCheck, X, FileText, Code, CheckCircle,
-  Briefcase, Play, Terminal, Trash2
+  Send, ChevronRight, ClipboardCheck, FileText, Code,
+  Briefcase, Play, Terminal, Trash2, Bot
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import dynamic from 'next/dynamic';
@@ -24,7 +22,7 @@ const PERSONAS = [
 ];
 
 export default function SimulationPage() {
-  const { user, isLoaded } = useUser();
+  const { isLoaded } = useUser();
   const [stage, setStage] = useState('setup'); // setup, parsing, chat, debrief
   const [params, setParams] = useState({ 
     company: '', 
@@ -196,7 +194,7 @@ export default function SimulationPage() {
                   <div style={{ textAlign: 'center', padding: '60px 0' }}>
                     <div className="dot-bounce" style={{ margin: '0 auto 20px', width: '12px', height: '12px', background: 'var(--accent)', borderRadius: '50%' }}></div>
                     <h3 style={{ fontSize: '18px', marginBottom: '8px' }}>Initializing Simulation...</h3>
-                    <p style={{ color: 'var(--text-secondary)' }}>Parsing context and configuring AI interviewer persona.</p>
+                    <p style={{ color: 'var(--text-secondary)' }}>Please wait 15-20 seconds while we configure your interviewer persona.</p>
                   </div>
                 ) : (
                   <>

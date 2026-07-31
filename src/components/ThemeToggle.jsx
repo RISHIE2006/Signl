@@ -2,7 +2,7 @@
 
 import { useTheme } from 'next-themes';
 import { Moon, Sun } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, startTransition } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function ThemeToggle() {
@@ -10,7 +10,7 @@ export default function ThemeToggle() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
+    startTransition(() => setMounted(true));
   }, []);
 
   if (!mounted) return <div style={{ width: '40px', height: '40px' }} />;

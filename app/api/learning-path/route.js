@@ -1,5 +1,6 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
 import { NextResponse } from 'next/server';
+import { generateWithFallback } from '@/lib/gemini';
+import { robustParseJSON } from '@/lib/json-utils';
 
 export async function POST(req) {
   try {
@@ -8,14 +9,6 @@ export async function POST(req) {
     if (!skills || !Array.isArray(skills) || skills.length === 0) {
       return NextResponse.json({ error: 'Skills are required.' }, { status: 400 });
     }
-
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-      return NextResponse.json({ error: 'GEMINI_API_KEY is not configured.' }, { status: 500 });
-    }
-
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: 'gemini-flash-latest' });
 
     const prompt = `You are an expert technical mentor. For the following skill gaps identified for a ${role} position, provide a structured learning path with specific, high-quality resources.
          
@@ -36,17 +29,17 @@ export async function POST(req) {
 
          Return ONLY valid JSON (no markdown, no backticks).`;
 
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text();
+    const text = await generateWithFallback(prompt);
     
-    const jsonMatch = text.match(/\[[\s\S]*\]/);
-    if (!jsonMatch) {
-      return NextResponse.json({ error: 'Failed to generate learning path.' }, { status: 500 });
+    try {
+      const parsed = robustParseJSON(text);
+      return NextResponse.json(parsed);
+    } catch (parseError) {
+      console.error('Learning Path JSON parse error:', parseError);
+      return NextResponse.json({ 
+        error: 'Failed to generate learning path. Please try again.'
+      }, { status: 500 });
     }
-
-    const parsed = JSON.parse(jsonMatch[0]);
-    return NextResponse.json(parsed);
   } catch (err) {
     console.error('Learning Path API error:', err);
     return NextResponse.json({ error: 'Failed to process learning path.' }, { status: 500 });

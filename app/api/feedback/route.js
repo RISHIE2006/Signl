@@ -1,5 +1,5 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
 import { NextResponse } from 'next/server';
+import { generateWithFallback } from '@/lib/gemini';
 
 export async function POST(req) {
   try {
@@ -8,14 +8,6 @@ export async function POST(req) {
     if (!question || !answer) {
       return NextResponse.json({ error: 'Question and answer are required.' }, { status: 400 });
     }
-
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-      return NextResponse.json({ error: 'GEMINI_API_KEY is not configured.' }, { status: 500 });
-    }
-
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: 'gemini-flash-latest' });
 
     const prompt = `You are an expert interviewer for ${company} interviewing a candidate for a ${role} position.
          
@@ -31,9 +23,7 @@ export async function POST(req) {
 
          Return ONLY valid JSON (no markdown, no backticks).`;
 
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text();
+    const text = await generateWithFallback(prompt);
     
     // Clean JSON parsing
     const jsonMatch = text.match(/\{[\s\S]*\}/);
