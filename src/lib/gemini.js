@@ -1,15 +1,15 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 /**
- * Ordered list of Gemini models to try, from newest to most stable fallback.
+ * Ordered list of Gemini models to try, from newest/most-capable to stable fallbacks.
  * If the primary model is unavailable (quota, 404, deprecation), the next one is tried automatically.
+ * Note: `gemini-2.0-flash` was retired and removed from this chain.
  */
 export const MODEL_FALLBACK_CHAIN = [
-  'gemini-2.5-flash',
-  'gemini-2.5-pro',
-  'gemini-2.0-flash',
-  'gemini-3-flash-preview',
   'gemini-3.1-pro-preview',
+  'gemini-3-flash-preview',
+  'gemini-2.5-pro',
+  'gemini-2.5-flash',
 ];
 
 /**
