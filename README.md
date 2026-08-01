@@ -127,6 +127,31 @@ GEMINI_API_KEY=your_gemini_api_key_here
 
 > **Note:** Never commit your `.env.local` file. It is already listed in `.gitignore`.
 
+## Vercel Deployment
+
+This project is already wired for CI and production deployment through the GitHub Actions workflow in [.github/workflows/ci-cd.yml](.github/workflows/ci-cd.yml).
+
+### Required Vercel configuration
+
+1. Connect the repository to Vercel and import the project.
+2. In Vercel Project Settings → Environment Variables, add the same values from your local `.env.local` file:
+   - `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`
+   - `CLERK_SECRET_KEY`
+   - `NEXT_PUBLIC_CLERK_SIGN_IN_URL`
+   - `NEXT_PUBLIC_CLERK_SIGN_UP_URL`
+   - `GEMINI_API_KEY`
+   - `STRIPE_SECRET_KEY`
+   - `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`
+   - `STRIPE_WEBHOOK_SECRET`
+   - `STRIPE_PRO_PRICE_ID`
+   - `STRIPE_TEAM_PRICE_ID`
+3. In GitHub repository settings → Secrets and variables → Actions, add:
+   - `VERCEL_TOKEN`
+   - `VERCEL_ORG_ID`
+   - `VERCEL_PROJECT_ID`
+
+Once those secrets are present, pushes to `main` or `master` will trigger the deployment workflow automatically.
+
 ---
 
 ## Project Structure
