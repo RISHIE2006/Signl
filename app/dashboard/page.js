@@ -185,10 +185,10 @@ export default function DashboardPage() {
     if (!user) { router.push('/sign-in'); return; }
 
     async function loadData() {
-      const p = await fetchProfile();
+      const p = await fetchProfile(user?.id);
       if (!p || !p.targetRoles || p.targetRoles.length === 0) { router.push('/onboarding'); return; }
       startTransition(() => setProfile(p));
-      const a = await fetchApplications(user.id);
+      const a = await fetchApplications(user?.id);
       startTransition(() => setApps(a));
 
       if (a.length === 0) { setInsight('Log some applications to see patterns emerge.'); return; }

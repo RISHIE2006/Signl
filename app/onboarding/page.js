@@ -39,9 +39,9 @@ export default function OnboardingPage() {
     if (!user) return;
     setSaving(true);
     try {
-      await saveProfileToDB({ status, targetRoles: selectedRoles });
-    } catch {
-      saveProfile(user.id, { status, targetRoles: selectedRoles });
+      await saveProfileToDB({ status, targetRoles: selectedRoles }, user.id);
+    } finally {
+      setSaving(false);
     }
     router.push('/dashboard');
   };

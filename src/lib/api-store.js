@@ -1,3 +1,5 @@
+import { getProfile as getStoredProfile, saveProfile as saveStoredProfile, getApplications as getStoredApplications } from '@/lib/store';
+
 const API_BASE = "/api/db";
 
 async function request(method, path, body) {
@@ -25,23 +27,30 @@ function del(path) {
 }
 
 // ── Profile ──
-export async function fetchProfile() {
+export async function fetchProfile(userId) {
   try {
     return await get("/profile");
   } catch {
-    return null;
+    return userId ? getStoredProfile(userId) : null;
   }
 }
-export async function saveProfileToDB(data) {
-  return post("/profile", data);
+export async function saveProfileToDB(data, userId) {
+  try {
+    return await post("/profile", data);
+  } catch {
+    if (userId) {
+      saveStoredProfile(userId, data);
+    }
+    return { success: true, fallback: true };
+  }
 }
 
 // ── Applications ──
-export async function fetchApplications() {
+export async function fetchApplications(userId) {
   try {
     return await get("/applications");
   } catch {
-    return [];
+    return userId ? getStoredApplications(userId) : [];
   }
 }
 export async function fetchApplicationById(appId) {
