@@ -19,7 +19,7 @@
 
 ## Overview
 
-**Signl** is a full-stack Next.js application designed for job seekers who want to approach their career transition with precision, not volume. Instead of blindly mass-applying, Signl uses **Google Gemini AI** to analyze resumes against job descriptions, conduct AI-powered mock interviews, match users with relevant job listings, and provide real-time market intelligence — all within a sleek, premium interface.
+**Signl** is a full-stack Next.js application designed for job seekers who want to approach their career transition with precision, not volume. Instead of blindly mass-applying, Signl uses **Grok AI** to analyze resumes against job descriptions, conduct AI-powered mock interviews, match users with relevant job listings, and provide real-time market intelligence — all within a sleek, premium interface.
 
 > *"Turn rejections into data."*
 
@@ -66,7 +66,7 @@ User preferences, centralized resume management, dark/light theme toggle, and a 
 | **Framework** | [Next.js 16](https://nextjs.org/) (App Router) |
 | **Language** | JavaScript (React 19), TypeScript config |
 | **Styling** | [Tailwind CSS 4](https://tailwindcss.com/) + Custom CSS Design System |
-| **AI Engine** | [Google Gemini API](https://ai.google.dev/) (`gemini-2.5-flash` w/ auto-fallback chain) |
+| **AI Engine** | [Grok API](https://x.ai/) (`grok-2-1212` via the shared AI helper) |
 | **Authentication** | [Clerk](https://clerk.com/) (Session-based, middleware-protected) |
 | **Animations** | [Framer Motion](https://www.framer.com/motion/) |
 | **Icons** | [Lucide React](https://lucide.dev/) |
@@ -74,7 +74,7 @@ User preferences, centralized resume management, dark/light theme toggle, and a 
 | **Document Parsing** | [mammoth](https://github.com/mwilliamson/mammoth.js) (DOCX), [pdf-parse](https://www.npmjs.com/package/pdf-parse) (PDF) |
 | **Code Editor** | [Monaco Editor](https://microsoft.github.io/monaco-editor/) (for resume tailoring preview) |
 | **State** | Browser `localStorage` (user-namespaced via Clerk ID) |
-| **Rate Limiting** | Custom in-memory sliding-window (6 req/min per IP) |
+| **Rate Limiting** | Custom SQLite-backed sliding-window limiter (10 req/min for AI routes, 60 req/min for DB routes, 10 req/min by default) |
 | **Caching** | [lru-cache](https://www.npmjs.com/package/lru-cache) |
 
 ---
@@ -85,7 +85,7 @@ User preferences, centralized resume management, dark/light theme toggle, and a 
 
 - **Node.js** ≥ 18.x
 - **npm** ≥ 9.x (or pnpm / yarn)
-- A [Google AI Studio](https://aistudio.google.com/apikey) API key
+- A [Grok](https://console.x.ai/) API key
 - A [Clerk](https://dashboard.clerk.com/) project (publishable + secret keys)
 
 ### Installation
@@ -121,8 +121,8 @@ CLERK_SECRET_KEY=sk_test_...
 NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
 NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
 
-# Google Gemini AI
-GEMINI_API_KEY=your_gemini_api_key_here
+# Grok AI
+GROK_API_KEY=your_grok_api_key_here
 ```
 
 > **Note:** Never commit your `.env.local` file. It is already listed in `.gitignore`.
@@ -139,7 +139,7 @@ This project is already wired for CI and production deployment through the GitHu
    - `CLERK_SECRET_KEY`
    - `NEXT_PUBLIC_CLERK_SIGN_IN_URL`
    - `NEXT_PUBLIC_CLERK_SIGN_UP_URL`
-   - `GEMINI_API_KEY`
+   - `GROK_API_KEY`
    - `STRIPE_SECRET_KEY`
    - `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`
    - `STRIPE_WEBHOOK_SECRET`
@@ -207,7 +207,7 @@ signl/
 │   ├── hooks/
 │   │   └── useBilling.js         #   Billing & usage limit hook
 │   └── lib/
-│       ├── gemini.js             #   Gemini API client (w/ fallback chain)
+│       ├── grok.js               #   Grok API client for chat and content generation
 │       ├── store.js              #   localStorage state management
 │       ├── ratelimit.js          #   In-memory rate limiter
 │       └── json-utils.js         #   Robust LLM JSON parser
@@ -230,7 +230,7 @@ Signl follows a clean **client → API route → AI service** pattern:
 ```mermaid
 graph LR
     A[Browser] -->|Authenticated Request| B[Next.js API Routes]
-    B -->|Structured Prompt| C[Google Gemini AI]
+    B -->|Structured Prompt| C[Grok AI]
     C -->|JSON Response| B
     B -->|Result| A
     A -->|Persist| D[localStorage]
@@ -239,11 +239,11 @@ graph LR
 
 ### Key Design Decisions
 
-1. **AI Model Fallback Chain** — Gemini calls cycle through 5 models (`gemini-2.5-flash` → `gemini-2.5-pro` → `gemini-2.0-flash` → `gemini-3-flash-preview` → `gemini-3.1-pro-preview`) for maximum uptime.
+1. **AI Provider Integration** — AI routes use a shared Grok client so prompts and chat completions go through the same provider setup.
 
 2. **Client-Side Persistence** — All user data is stored in `localStorage`, namespaced by Clerk user ID (`signl_{userId}_{dataType}`). This eliminates the need for a traditional database while keeping data isolated between users.
 
-3. **Rate Limiting** — A sliding-window rate limiter (6 requests/minute per IP) runs in Next.js middleware to prevent API abuse.
+3. **Rate Limiting** — A SQLite-backed sliding-window limiter applies 10 requests/minute to AI routes, 60 requests/minute to DB routes, and 10 requests/minute by default to prevent API abuse.
 
 4. **Robust JSON Parsing** — LLM responses are parsed through a custom utility that strips markdown code blocks, fixes trailing commas, and extracts JSON from mixed text.
 

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { generateWithFallback } from '@/lib/gemini';
+import { generateWithFallback } from '@/lib/grok';
 import { robustParseJSON } from '@/lib/json-utils';
 
 export async function POST(req) {

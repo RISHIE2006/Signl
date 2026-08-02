@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { generateWithFallback } from '@/lib/gemini';
+import { generateWithFallback } from '@/lib/grok';
 
 export async function POST(req) {
   try {

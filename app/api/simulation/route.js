@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { generateChatWithFallback } from '@/lib/gemini';
+import { generateChatWithFallback } from '@/lib/grok';
 
 export async function POST(req) {
   try {
@@ -51,7 +51,7 @@ export async function POST(req) {
       6. Sound like someone the candidate might actually interview with at a top company.${languageInstruction}
     `;
 
-    // Format history for Gemini — must start with 'user', must alternate
+    // Format history for the chat model — must start with 'user' and alternate
     const chatMessages = messages.filter(m => m.content && m.content.trim());
     const chatHistory = [];
     for (let i = 0; i < chatMessages.length - 1; i++) {

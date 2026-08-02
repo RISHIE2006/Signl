@@ -2,7 +2,7 @@ import Database from 'better-sqlite3';
 import path from 'node:path';
 
 const RATE_LIMITS = {
-  gemini: { requests: 4, windowMs: 60000 },
+  ai: { requests: 10, windowMs: 60000 },
   db: { requests: 60, windowMs: 60000 },
   default: { requests: 10, windowMs: 60000 },
 };
@@ -29,7 +29,7 @@ const deleteEntryStmt = db.prepare('DELETE FROM rate_limits WHERE key = ?');
 function getLimitForPath(pathValue) {
   if (!pathValue) return RATE_LIMITS.default;
   if (pathValue.includes('/api/db/')) return RATE_LIMITS.db;
-  if (pathValue.includes('/api/')) return RATE_LIMITS.gemini;
+  if (pathValue.includes('/api/')) return RATE_LIMITS.ai;
   return RATE_LIMITS.default;
 }
 

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { generateChatWithFallback } from '@/lib/gemini';
+import { generateChatWithFallback } from '@/lib/grok';
 
 export async function POST(req) {
   try {
