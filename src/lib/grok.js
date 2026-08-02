@@ -22,9 +22,19 @@ function buildGrokChatPayload(lastMessage, chatHistory, systemInstruction, gener
   };
 }
 
+function resolveGrokApiKey() {
+  const candidates = [
+    process.env.GROK_API_KEY,
+    process.env.GEMINI_API_KEY,
+    process.env.XAI_API_KEY,
+  ];
+
+  return candidates.find((value) => typeof value === 'string' && value.trim() && !['your_grok_api_key', 'your_gemini_api_key', 'your_xai_api_key'].includes(value.trim()));
+}
+
 async function callGrok(payload) {
-  const apiKey = process.env.GROK_API_KEY;
-  if (!apiKey || apiKey === 'your_grok_api_key') {
+  const apiKey = resolveGrokApiKey();
+  if (!apiKey) {
     throw new Error('GROK_API_KEY is not configured in .env.local.');
   }
 

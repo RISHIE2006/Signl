@@ -1,14 +1,18 @@
 import assert from 'node:assert/strict';
 
-async function testGrokWrapperUsesGrokApi() {
+async function runGrokRequestTest(envName, keyValue) {
   const { generateWithFallback } = await import('../src/lib/grok.js');
   const originalFetch = global.fetch;
 
   try {
-    process.env.GROK_API_KEY = 'test-grok-key';
+    delete process.env.GROK_API_KEY;
+    delete process.env.GEMINI_API_KEY;
+    delete process.env.XAI_API_KEY;
+    process.env[envName] = keyValue;
+
     global.fetch = async (url, options) => {
       assert.equal(url, 'https://api.x.ai/v1/chat/completions');
-      assert.equal(options.headers.Authorization, 'Bearer test-grok-key');
+      assert.equal(options.headers.Authorization, `Bearer ${keyValue}`);
       return {
         ok: true,
         async json() {
@@ -24,8 +28,11 @@ async function testGrokWrapperUsesGrokApi() {
   } finally {
     global.fetch = originalFetch;
     delete process.env.GROK_API_KEY;
+    delete process.env.GEMINI_API_KEY;
+    delete process.env.XAI_API_KEY;
   }
 }
 
-await testGrokWrapperUsesGrokApi();
-console.log('Grok wrapper test passed');
+await runGrokRequestTest('GROK_API_KEY', 'test-grok-key');
+await runGrokRequestTest('GEMINI_API_KEY', 'legacy-gemini-key');
+console.log('Grok wrapper tests passed');
