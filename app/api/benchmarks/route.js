@@ -50,12 +50,27 @@ Rules:
 - Ensure the JSON is perfectly formatted.`;
 
     const text = await generateWithFallback(prompt);
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
-      return NextResponse.json({ error: 'Could not parse AI response. Try again.' }, { status: 500 });
+    let parsed;
+
+    try {
+      parsed = JSON.parse(text);
+    } catch (firstParseError) {
+      const jsonMatch = text.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) {
+        return NextResponse.json({ error: 'Could not parse AI response. Try again.' }, { status: 500 });
+      }
+      try {
+        parsed = JSON.parse(jsonMatch[0]);
+      } catch (secondParseError) {
+        console.error('Benchmarks parse error:', {
+          text,
+          firstParseError: firstParseError.message,
+          secondParseError: secondParseError.message,
+        });
+        return NextResponse.json({ error: 'Could not parse AI response. Try again.' }, { status: 500 });
+      }
     }
 
-    const parsed = JSON.parse(jsonMatch[0]);
     return NextResponse.json(parsed);
   } catch (err) {
     console.error('Benchmarks API error:', err);

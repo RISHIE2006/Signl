@@ -2,7 +2,9 @@ import Database from "better-sqlite3";
 import path from "path";
 import fs from "fs";
 
-const DB_PATH = path.join(process.cwd(), "data", "signl.db");
+const DB_PATH = process.env.SQLITE_DB_PATH || (process.env.VERCEL
+  ? path.join(path.sep, 'tmp', 'signl.db')
+  : path.join(process.cwd(), 'data', 'signl.db'));
 
 let db = null;
 
