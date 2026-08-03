@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
 require('dotenv').config({ path: '.env.local' });
 
-async function listModels() {
+async function testGroq() {
   const apiKey = process.env.GROK_API_KEY;
   if (!apiKey) {
     console.error('GROK_API_KEY not found in .env.local');
@@ -9,14 +9,14 @@ async function listModels() {
   }
 
   try {
-    const response = await fetch('https://api.x.ai/v1/chat/completions', {
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: 'grok-2-1212',
+        model: 'llama-3.3-70b-versatile',
         messages: [{ role: 'user', content: 'Hi' }],
       }),
     });
@@ -28,8 +28,8 @@ async function listModels() {
     const data = await response.json();
     console.log(data.choices?.[0]?.message?.content || 'No response');
   } catch (err) {
-    console.error('Error with Grok:', err.message);
+    console.error('Error with Groq:', err.message);
   }
 }
 
-listModels();
+testGroq();

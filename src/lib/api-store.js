@@ -29,18 +29,26 @@ function del(path) {
 // ── Profile ──
 export async function fetchProfile(userId) {
   try {
-    return await get("/profile");
+    const res = await get("/profile");
+    if (res && Array.isArray(res.targetRoles) && res.targetRoles.length > 0) {
+      return res;
+    }
+    const local = userId ? getStoredProfile(userId) : null;
+    if (local && Array.isArray(local.targetRoles) && local.targetRoles.length > 0) {
+      return local;
+    }
+    return res || local;
   } catch {
     return userId ? getStoredProfile(userId) : null;
   }
 }
 export async function saveProfileToDB(data, userId) {
+  if (userId) {
+    saveStoredProfile(userId, data);
+  }
   try {
     return await post("/profile", data);
   } catch {
-    if (userId) {
-      saveStoredProfile(userId, data);
-    }
     return { success: true, fallback: true };
   }
 }

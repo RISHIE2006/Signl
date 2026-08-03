@@ -36,10 +36,13 @@ export default function OnboardingPage() {
   };
 
   const handleFinish = async () => {
-    if (!user) return;
     setSaving(true);
+    const uId = user?.id || 'demo_user';
     try {
-      await saveProfileToDB({ status, targetRoles: selectedRoles }, user.id);
+      saveProfile(uId, { status, targetRoles: selectedRoles });
+      await saveProfileToDB({ status, targetRoles: selectedRoles }, uId);
+    } catch (e) {
+      console.error('Error saving onboarding profile:', e);
     } finally {
       setSaving(false);
     }
