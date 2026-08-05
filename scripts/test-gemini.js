@@ -1,35 +1,47 @@
-/* eslint-disable @typescript-eslint/no-require-imports */
-require('dotenv').config({ path: '.env.local' });
+const fs = require('fs');
+const path = require('path');
 
-async function testGroq() {
-  const apiKey = process.env.GROK_API_KEY;
+const envPath = path.join(__dirname, '..', '.env.local');
+if (fs.existsSync(envPath)) {
+  const envConfig = fs.readFileSync(envPath, 'utf8');
+  envConfig.split('\n').forEach((line) => {
+    const [key, ...valueParts] = line.split('=');
+    if (key && valueParts.length > 0) {
+      process.env[key.trim()] = valueParts.join('=').trim();
+    }
+  });
+}
+
+async function testGemini() {
+  const apiKey = process.env.GEMINI_API_KEY || process.env.GROK_API_KEY;
   if (!apiKey) {
-    console.error('GROK_API_KEY not found in .env.local');
+    console.error('GEMINI_API_KEY not found in .env.local');
     return;
   }
 
   try {
-    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    const response = await fetch('https://generativelanguage.googleapis.com/v1beta/openai/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
+        model: 'gemini-2.0-flash',
         messages: [{ role: 'user', content: 'Hi' }],
       }),
     });
 
     if (!response.ok) {
-      throw new Error(`Request failed with ${response.status}`);
+      const errText = await response.text();
+      throw new Error(`Request failed with ${response.status}: ${errText}`);
     }
 
     const data = await response.json();
     console.log(data.choices?.[0]?.message?.content || 'No response');
   } catch (err) {
-    console.error('Error with Groq:', err.message);
+    console.error('Error with Gemini API:', err.message);
   }
 }
 
-testGroq();
+testGemini();

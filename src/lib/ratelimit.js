@@ -2,9 +2,9 @@ import Database from 'better-sqlite3';
 import path from 'node:path';
 
 const RATE_LIMITS = {
-  ai: { requests: 10, windowMs: 60000 },
+  ai: { requests: 10, windowMs: 1000 },
   db: { requests: 60, windowMs: 60000 },
-  default: { requests: 10, windowMs: 60000 },
+  default: { requests: 10, windowMs: 1000 },
 };
 
 const DB_PATH = process.env.RATE_LIMIT_DB_PATH || path.join(process.cwd(), '.ratelimit-store.sqlite');

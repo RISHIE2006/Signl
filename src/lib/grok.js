@@ -1,9 +1,12 @@
+import { rateLimit } from './ratelimit.js';
+
+const GEMINI_MODEL = 'gemini-2.0-flash';
 const GROQ_MODEL = 'llama-3.3-70b-versatile';
 const XAI_MODEL = 'grok-2-latest';
 
 function buildGroqPayload(prompt, options = {}) {
   return {
-    model: options.model || GROQ_MODEL,
+    model: options.model,
     messages: [{ role: 'user', content: prompt }],
     temperature: options.temperature ?? 0.7,
     max_tokens: options.maxOutputTokens ?? 4096,
@@ -26,7 +29,7 @@ function buildGroqChatPayload(lastMessage, chatHistory = [], systemInstruction, 
   messages.push({ role: 'user', content: lastMessage });
 
   return {
-    model: generationConfig.model || GROQ_MODEL,
+    model: generationConfig.model,
     messages,
     temperature: generationConfig.temperature ?? 0.7,
     max_tokens: generationConfig.maxOutputTokens ?? 4096,
@@ -35,9 +38,9 @@ function buildGroqChatPayload(lastMessage, chatHistory = [], systemInstruction, 
 
 function resolveProviderConfig() {
   const candidates = [
+    { key: process.env.GEMINI_API_KEY, source: 'GEMINI_API_KEY' },
     { key: process.env.GROK_API_KEY, source: 'GROK_API_KEY' },
     { key: process.env.GROQ_API_KEY, source: 'GROQ_API_KEY' },
-    { key: process.env.GEMINI_API_KEY, source: 'GEMINI_API_KEY' },
     { key: process.env.XAI_API_KEY, source: 'XAI_API_KEY' },
   ];
 
@@ -51,6 +54,14 @@ function resolveProviderConfig() {
   if (!found) return null;
 
   const key = found.key.trim();
+
+  if (found.source === 'GEMINI_API_KEY' || key.startsWith('AQ.') || key.startsWith('AIza')) {
+    return {
+      apiKey: key,
+      url: 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions',
+      defaultModel: GEMINI_MODEL,
+    };
+  }
 
   if (key.startsWith('gsk_') || found.source === 'GROQ_API_KEY') {
     return {
@@ -68,9 +79,14 @@ function resolveProviderConfig() {
 }
 
 async function callGroq(payload) {
+  const rl = rateLimit('ai-provider', '/api/ai');
+  if (!rl.success) {
+    throw new Error('Rate limit exceeded (10 requests/sec). Please slow down your requests.');
+  }
+
   const config = resolveProviderConfig();
   if (!config) {
-    throw new Error('GROK_API_KEY (or GROQ_API_KEY) is not configured in .env.local.');
+    throw new Error('GEMINI_API_KEY (or GROK_API_KEY) is not configured in .env.local.');
   }
 
   const finalPayload = {
