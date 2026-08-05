@@ -62,7 +62,7 @@ Rules:
 - Tags should reflect actual technologies/skills from the resume and job.
 - The output must be perfectly valid JSON only.`;
 
-    const text = await generateWithFallback(prompt);
+    const text = await generateWithFallback(prompt, { maxOutputTokens: 8192 });
     
     try {
       const parsed = robustParseJSON(text);
@@ -72,8 +72,9 @@ Rules:
       return NextResponse.json(parsed);
     } catch (parseError) {
       console.error('Jobs Search JSON parse error:', parseError);
+      console.error('Raw AI response length:', text?.length, '| First 300 chars:', text?.substring(0, 300));
       return NextResponse.json({ 
-        error: 'Failed to parse job results. Please try again.'
+        error: 'Failed to parse job results. The AI response was incomplete. Please try again.'
       }, { status: 500 });
     }
   } catch (err) {
