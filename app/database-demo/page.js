@@ -152,7 +152,7 @@ export default function DatabaseDemoPage() {
       return;
     }
     fetchAll();
-  }, [isLoaded, isSignedIn]);
+  }, [isLoaded, isSignedIn, router]);
 
   async function addApplication() {
     if (!newApp.company || !newApp.role) return;

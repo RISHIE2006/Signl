@@ -49,6 +49,7 @@ export default function VoicePrepPage() {
   const silenceTimerRef = useRef(null);
   const videoRef = useRef(null);
   const streamRef = useRef(null);
+  const handleSendVoiceMessageRef = useRef(null);
 
   const fillerWords = [
     "um",
@@ -79,7 +80,7 @@ export default function VoicePrepPage() {
           if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
           silenceTimerRef.current = setTimeout(() => {
             if (currentTranscript.trim()) {
-              handleSendVoiceMessage(currentTranscript);
+              handleSendVoiceMessageRef.current?.(currentTranscript);
             }
           }, 2000);
         };
@@ -257,6 +258,7 @@ export default function VoicePrepPage() {
       setLoading(false);
     }
   };
+  handleSendVoiceMessageRef.current = handleSendVoiceMessage;
 
   const startSession = async () => {
     if (!config.role || !config.company) return;

@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, startTransition } from "react";
+import { useState, useEffect, startTransition, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Trophy, AlertCircle, Layers } from "lucide-react";
 import Sidebar from "@/components/Sidebar";
@@ -14,58 +14,61 @@ export default function PipelineDebriefPage() {
   const [loading, setLoading] = useState(true);
   const [finalScore, setFinalScore] = useState(0);
 
-  const processDebriefs = async (data) => {
-    const { params, transcripts, rounds } = data;
-    const results = {};
-    let totalScore = 0;
+  const processDebriefs = useCallback(
+    async (data) => {
+      const { params, transcripts, rounds } = data;
+      const results = {};
+      let totalScore = 0;
 
-    for (let i = 0; i < rounds.length; i++) {
-      const msgs = transcripts[i] || [];
-      if (msgs.length <= 1) continue;
+      for (let i = 0; i < rounds.length; i++) {
+        const msgs = transcripts[i] || [];
+        if (msgs.length <= 1) continue;
 
-      try {
-        const res = await fetch("/api/debrief", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            role: params.role,
-            company: params.company,
-            messages: msgs,
-          }),
-        });
-        const d = await res.json();
-        results[rounds[i].id] = d;
-        totalScore += d.overallScore || 0;
+        try {
+          const res = await fetch("/api/debrief", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              role: params.role,
+              company: params.company,
+              messages: msgs,
+            }),
+          });
+          const d = await res.json();
+          results[rounds[i].id] = d;
+          totalScore += d.overallScore || 0;
 
-        if (d.fingerprint && user) {
-          const cDna = getDNA(user.id) || {
-            radar: [],
-            fillers: [],
-            paceTrend: [],
-          };
-          if (i === rounds.length - 1) {
-            const sessionNum = cDna.paceTrend.length + 1;
-            cDna.paceTrend.push({
-              session: sessionNum.toString(),
-              wpm: d.fingerprint.estimatedWPM || 130,
-            });
-            saveDNA(user.id, cDna);
+          if (d.fingerprint && user) {
+            const cDna = getDNA(user.id) || {
+              radar: [],
+              fillers: [],
+              paceTrend: [],
+            };
+            if (i === rounds.length - 1) {
+              const sessionNum = cDna.paceTrend.length + 1;
+              cDna.paceTrend.push({
+                session: sessionNum.toString(),
+                wpm: d.fingerprint.estimatedWPM || 130,
+              });
+              saveDNA(user.id, cDna);
+            }
           }
+        } catch (err) {
+          console.warn("Failed round debrief", err);
         }
-      } catch (err) {
-        console.warn("Failed round debrief", err);
       }
-    }
 
-    const completedRounds = Object.keys(results).length;
-    startTransition(() => {
-      setDebriefs(results);
-      setFinalScore(
-        completedRounds > 0 ? (totalScore / completedRounds).toFixed(1) : 0,
-      );
-      setLoading(false);
-    });
-  };
+      const completedRounds = Object.keys(results).length;
+      startTransition(() => {
+        setDebriefs(results);
+        setFinalScore(
+          completedRounds > 0 ? (totalScore / completedRounds).toFixed(1) : 0,
+        );
+        setLoading(false);
+      });
+    },
+    [user],
+  );
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -104,7 +107,7 @@ export default function PipelineDebriefPage() {
       };
       loadData();
     }
-  }, [user]);
+  }, [user, processDebriefs]);
 
   if (loading) {
     return (
