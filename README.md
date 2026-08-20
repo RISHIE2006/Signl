@@ -1,5 +1,4 @@
 <h1 align="center">
-  <img src="public/logo.png" alt="Signl" width="48" /><br/>
   Signl
 </h1>
 
@@ -11,7 +10,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/Next.js-16-black?logo=next.js" />
   <img src="https://img.shields.io/badge/React-19-61DAFB?logo=react" />
-  <img src="https://img.shields.io/badge/AI-Gemini%20%7C%20Groq%20%7C%20xAI-blueviolet" />
+  <img src="https://img.shields.io/badge/AI-Gemini%20%7C%20Groq-blueviolet" />
   <img src="https://img.shields.io/badge/Auth-Clerk-6C47FF?logo=clerk" />
   <img src="https://img.shields.io/badge/Deploy-Vercel-black?logo=vercel" />
   <img src="https://img.shields.io/badge/License-MIT-green" />
@@ -157,7 +156,6 @@ graph TB
         Resolver[Provider Resolver\nauto-detects from env]
         Gemini[Google Gemini\ngemini-2.0-flash]
         Groq[Groq\nllama-3.3-70b]
-        XAI[xAI Grok\ngrok-2-latest]
     end
 
     subgraph External["🔌 External Services"]
@@ -172,8 +170,7 @@ graph TB
     API -->|structured prompt| Resolver
     Resolver --> Gemini
     Resolver --> Groq
-    Resolver --> XAI
-    Gemini & Groq & XAI -->|JSON response| API
+    Gemini & Groq -->|JSON response| API
     API -->|result| UI
     UI <-->|real-time| Socket
     Socket <-->|events| SIO
@@ -185,7 +182,7 @@ graph TB
 ### Key Design Decisions
 
 #### 1. Multi-Provider AI with Auto-Detection
-The `grok.js` module automatically selects the AI provider by inspecting available environment keys — no configuration required. Priority order: Gemini → Groq → xAI. This means the app works with any of the three APIs interchangeably.
+The `grok.js` module automatically selects the AI provider by inspecting available environment keys — no configuration required. Priority order: Gemini → Groq. This means the app works with either of the APIs interchangeably.
 
 #### 2. Dual Persistence Strategy
 - **SQLite** (`better-sqlite3`) is used server-side for structured data (applications, analyses, preps, profile) that needs to persist across devices
@@ -305,9 +302,8 @@ flowchart LR
     ENV[Environment Variables] --> R{resolveProviderConfig}
     R -->|GEMINI_API_KEY\nor starts with AIza| G["Google Gemini\ngenerativelanguage.googleapis.com\ngemini-2.0-flash"]
     R -->|gsk_ prefix\nor GROQ_API_KEY| GQ["Groq\napi.groq.com\nllama-3.3-70b-versatile"]
-    R -->|GROK_API_KEY\nor XAI_API_KEY| X["xAI Grok\napi.x.ai\ngrok-2-latest"]
     R -->|None found| ERR["Error: No API key\nconfigured"]
-    G & GQ & X -->|OpenAI-compatible\nchat/completions| RESP[AI Response]
+    G & GQ -->|OpenAI-compatible\nchat/completions| RESP[AI Response]
 ```
 
 ---
@@ -319,7 +315,7 @@ flowchart LR
 | **Framework** | [Next.js 16](https://nextjs.org/) (App Router) | Full-stack React framework |
 | **Language** | JavaScript (React 19) + TypeScript config | Application logic |
 | **Styling** | Tailwind CSS 4 + Custom CSS Design System | UI tokens, dark/light themes |
-| **AI Engine** | Gemini / Groq / xAI (auto-detected) | All generative AI features |
+| **AI Engine** | Gemini / Groq (auto-detected) | All generative AI features |
 | **Auth** | [Clerk](https://clerk.com/) | User sessions, middleware guard |
 | **Database** | [better-sqlite3](https://github.com/WiseLibs/better-sqlite3) | Server-side persistent storage |
 | **Real-time** | [Socket.IO](https://socket.io/) | Live application events |
@@ -343,7 +339,7 @@ flowchart LR
 
 - **Node.js** ≥ 18.x
 - **npm** ≥ 9.x
-- At least **one** AI API key: [Gemini](https://aistudio.google.com/), [Groq](https://console.groq.com/), or [xAI](https://console.x.ai/)
+- At least **one** AI API key: [Gemini](https://aistudio.google.com/), or [Groq](https://console.groq.com/)
 - A [Clerk](https://dashboard.clerk.com/) project (publishable + secret keys)
 
 ### Installation
@@ -536,7 +532,6 @@ NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
 # ── AI Provider (pick ONE — all use OpenAI-compatible API) ───
 GEMINI_API_KEY=AIza...          # Google Gemini (recommended)
 # GROQ_API_KEY=gsk_...          # Groq (Llama 3.3 70b)
-# XAI_API_KEY=xai_...           # xAI Grok
 
 # ── Stripe Billing (optional) ────────────────────────────────
 STRIPE_SECRET_KEY=sk_...
