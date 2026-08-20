@@ -10,7 +10,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/Next.js-16-black?logo=next.js" />
   <img src="https://img.shields.io/badge/React-19-61DAFB?logo=react" />
-  <img src="https://img.shields.io/badge/AI-Gemini%20%7C%20Groq-blueviolet" />
+  <img src="https://img.shields.io/badge/AI-Gemini%20%7C%20blueviolet" />
   <img src="https://img.shields.io/badge/Auth-Clerk-6C47FF?logo=clerk" />
   <img src="https://img.shields.io/badge/Deploy-Vercel-black?logo=vercel" />
   <img src="https://img.shields.io/badge/License-MIT-green" />
