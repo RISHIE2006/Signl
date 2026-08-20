@@ -53,8 +53,17 @@ next-env.d.ts
 *.swo
 *~
 
-.vercel
-
 # ─── SQLite Local Store ─────────────────────────────────────────
 .ratelimit-store.sqlite*
 
+# ─── SQLite Database Files ──────────────────────────────────────
+data/*.db
+data/*.db-shm
+data/*.db-wal
+
+# ─── Temp / Dev Logs ────────────────────────────────────────────
+build-measure.log
+test-measure.log
+dev-*.log
+dev-runtime*
+server*.log

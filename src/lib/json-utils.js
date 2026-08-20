@@ -17,26 +17,65 @@ export function robustParseJSON(text) {
     cleaned = cleaned.replace(/^```[a-z]*\n/i, '').replace(/\n```$/, '').trim();
   }
 
-  // 2. Extract content between the first [ or { and the last ] or }
+  // 2. Find the first { or [ and then find the matching closing brace/bracket
+  // by counting nested structures
   const firstBrace = cleaned.indexOf('{');
   const firstBracket = cleaned.indexOf('[');
   
   let startIdx = -1;
-  let endIdx = -1;
-
+  
   if (firstBrace !== -1 && (firstBracket === -1 || firstBrace < firstBracket)) {
-    // Looks like an object
     startIdx = firstBrace;
-    endIdx = cleaned.lastIndexOf('}');
   } else if (firstBracket !== -1) {
-    // Looks like an array
     startIdx = firstBracket;
-    endIdx = cleaned.lastIndexOf(']');
   }
-
-  if (startIdx !== -1 && endIdx !== -1 && endIdx > startIdx) {
-    cleaned = cleaned.substring(startIdx, endIdx + 1);
+  
+  if (startIdx === -1) {
+    throw new Error('No JSON object or array found in response');
   }
+  
+  // Find the matching closing bracket by counting nested structures
+  let depth = 0;
+  let inString = false;
+  let escapeNext = false;
+  let endIdx = -1;
+  
+  for (let i = startIdx; i < cleaned.length; i++) {
+    const char = cleaned[i];
+    
+    if (escapeNext) {
+      escapeNext = false;
+      continue;
+    }
+    
+    if (char === '\\') {
+      escapeNext = true;
+      continue;
+    }
+    
+    if (char === '"' && !escapeNext) {
+      inString = !inString;
+      continue;
+    }
+    
+    if (inString) continue;
+    
+    if (char === '{' || char === '[') {
+      depth++;
+    } else if (char === '}' || char === ']') {
+      depth--;
+      if (depth === 0) {
+        endIdx = i;
+        break;
+      }
+    }
+  }
+  
+  if (endIdx === -1) {
+    throw new Error('Could not find matching closing bracket for JSON');
+  }
+  
+  cleaned = cleaned.substring(startIdx, endIdx + 1);
 
   // 3. Remove trailing commas before closing braces/brackets
   // This is a common LLM error in large arrays/objects
@@ -49,8 +88,6 @@ export function robustParseJSON(text) {
     console.error('[robustParseJSON] Raw snippet (start):', cleaned.substring(0, 200));
     console.error('[robustParseJSON] Raw snippet (end):', cleaned.substring(cleaned.length - 200));
     
-    // Attempt one last-ditch fix for unquoted property names if position is known
-    // But for now, just throw a clearer error
     throw new Error(`JSON Parsing failed: ${err.message}. Position: ${err.at || 'unknown'}`);
   }
 }

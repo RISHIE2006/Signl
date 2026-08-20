@@ -77,11 +77,12 @@ export default function BenchmarksPage() {
           saveBenchmarks(user.id, result);
         }
       } else {
-        const errorText = await res.text();
-        console.error("Benchmarks API returned an error:", res.status, errorText);
+        throw new Error(`Benchmarks API returned ${res.status}`);
       }
     } catch (err) {
       console.error("Failed to load benchmarks:", err);
+      const local = getBenchmarks(user.id);
+      if (local) setData(local);
     } finally {
       setLoading(false);
       setRefreshing(false);

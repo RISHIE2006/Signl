@@ -1,6 +1,7 @@
 import { auth } from '@clerk/nextjs/server';
 import { getAnalyses, addAnalysis } from '@/lib/db';
 import { assertWithinPlanLimit } from '@/lib/billing-limits';
+import { emitToUserApps, SocketEvents } from '@/lib/socket';
 
 export async function GET() {
   const { userId } = await auth();
@@ -16,5 +17,6 @@ export async function POST(request) {
   if (!limit.allowed) return Response.json(limit, { status: limit.status });
   const body = await request.json();
   const analysis = addAnalysis(userId, body);
+  emitToUserApps(userId, SocketEvents.ANALYSIS_COMPLETED, analysis);
   return Response.json(analysis, { status: 201 });
 }

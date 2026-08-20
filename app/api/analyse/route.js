@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { generateWithFallback } from '@/lib/grok';
 import { robustParseJSON } from '@/lib/json-utils';
 import mammoth from 'mammoth';
+import { extractTextFromPdf } from '@/lib/pdf-utils';
 
 export async function POST(req) {
   try {
@@ -19,18 +20,7 @@ export async function POST(req) {
         const buffer = Buffer.from(await resumeFile.arrayBuffer());
         
         if (resumeFile.type === 'application/pdf') {
-          const pdfNamespace = await import('pdf-parse');
-          const PDFParse = pdfNamespace.PDFParse || pdfNamespace.default?.PDFParse;
-          
-          if (!PDFParse) {
-             const pdfFunc = pdfNamespace.default || pdfNamespace;
-             const data = await pdfFunc(buffer);
-             resume = data.text;
-          } else {
-             const parser = new PDFParse({ data: buffer });
-             const data = await parser.getText();
-             resume = data.text;
-          }
+          resume = await extractTextFromPdf(buffer);
         } else if (
           resumeFile.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' || 
           resumeFile.type === 'application/msword'

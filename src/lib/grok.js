@@ -78,8 +78,8 @@ function resolveProviderConfig() {
   };
 }
 
-async function callGroq(payload) {
-  const rl = rateLimit('ai-provider', '/api/ai');
+async function callGroq(payload, rateLimitKey) {
+  const rl = rateLimit(rateLimitKey || 'ai-provider', '/api/ai');
   if (!rl.success) {
     throw new Error('Rate limit exceeded (10 requests/sec). Please slow down your requests.');
   }
@@ -114,10 +114,10 @@ async function callGroq(payload) {
 
 export async function generateWithFallback(prompt, options = {}) {
   const payload = buildGroqPayload(prompt, options);
-  return callGroq(payload);
+  return callGroq(payload, options.rateLimitKey);
 }
 
 export async function generateChatWithFallback(lastMessage, chatHistory, systemInstruction, generationConfig = {}) {
   const payload = buildGroqChatPayload(lastMessage, chatHistory, systemInstruction, generationConfig);
-  return callGroq(payload);
+  return callGroq(payload, generationConfig.rateLimitKey);
 }

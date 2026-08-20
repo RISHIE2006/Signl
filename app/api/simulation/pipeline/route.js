@@ -57,7 +57,7 @@ export async function POST(req) {
       chatHistory.push(entry);
     }
 
-    const lastMessage = systemPrompt + '\n\nCandidate says:\n' + formattedHistory[formattedHistory.length - 1].parts[0].text;
+    const lastMessage = formattedHistory[formattedHistory.length - 1].parts[0].text;
 
     const text = await generateChatWithFallback(lastMessage, chatHistory, systemPrompt);
 

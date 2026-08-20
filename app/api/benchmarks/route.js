@@ -1,6 +1,45 @@
 import { NextResponse } from 'next/server';
 import { generateWithFallback } from '@/lib/grok';
 
+const OFFLINE_BENCHMARKS = {
+  marketAvgSuccessRate: 6,
+  avgTechnicalDropoff: 54,
+  sectors: [
+    { name: 'Top Tech (avg)', resumeDropoff: 82, technicalDropoff: 58, finalDropoff: 24 },
+    { name: 'Startups (avg)', resumeDropoff: 68, technicalDropoff: 46, finalDropoff: 19 },
+    { name: 'Consulting (avg)', resumeDropoff: 74, technicalDropoff: 51, finalDropoff: 21 },
+    { name: 'Finance (avg)', resumeDropoff: 77, technicalDropoff: 55, finalDropoff: 23 },
+  ],
+};
+
+function json(data, status = 200) {
+  return NextResponse.json(data, { status, headers: { 'Cache-Control': 'no-store' } });
+}
+
+function normalize(data) {
+  if (!data || !Number.isFinite(Number(data.marketAvgSuccessRate)) || !Array.isArray(data.sectors)) {
+    throw new Error('Invalid benchmark response');
+  }
+  return {
+    marketAvgSuccessRate: Math.round(Number(data.marketAvgSuccessRate)),
+    avgTechnicalDropoff: Math.round(Number(data.avgTechnicalDropoff) || OFFLINE_BENCHMARKS.avgTechnicalDropoff),
+    sectors: data.sectors.slice(0, 4).map((sector) => ({
+      name: String(sector.name || 'Unknown'),
+      resumeDropoff: Math.round(Number(sector.resumeDropoff) || 0),
+      technicalDropoff: Math.round(Number(sector.technicalDropoff) || 0),
+      finalDropoff: Math.round(Number(sector.finalDropoff) || 0),
+    })),
+  };
+}
+
+export async function GET() {
+  return json({ ...OFFLINE_BENCHMARKS, fetchedAt: new Date().toISOString(), source: 'offline' });
+}
+
+export async function OPTIONS() {
+  return new Response(null, { status: 204 });
+}
+
 export async function POST(req) {
   try {
     const { roles } = await req.json();
@@ -49,7 +88,13 @@ Rules:
 - The stats should reflect the current competitive job market logically (e.g. Resume drop-off is usually highest, Offer rate is usually very low like 2-15%).
 - Ensure the JSON is perfectly formatted.`;
 
-    const text = await generateWithFallback(prompt);
+    let text;
+    try {
+      text = await generateWithFallback(prompt);
+    } catch (providerError) {
+      console.warn('Benchmarks provider unavailable; using offline data:', providerError.message);
+      return json({ ...OFFLINE_BENCHMARKS, fetchedAt: new Date().toISOString(), source: 'offline' });
+    }
     let parsed;
 
     try {
@@ -71,9 +116,9 @@ Rules:
       }
     }
 
-    return NextResponse.json(parsed);
+    return json({ ...normalize(parsed), source: 'ai' });
   } catch (err) {
     console.error('Benchmarks API error:', err);
-    return NextResponse.json({ error: err.message || 'Benchmarks generation failed.' }, { status: 500 });
+    return json({ ...OFFLINE_BENCHMARKS, fetchedAt: new Date().toISOString(), source: 'offline', warning: err.message }, 200);
   }
 }

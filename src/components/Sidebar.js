@@ -8,6 +8,7 @@ import {
   Mail, MessageSquare, Zap, ChevronRight, Search, Activity
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useState } from 'react';
 import ThemeToggle from './ThemeToggle';
 
 const groups = [
@@ -54,9 +55,17 @@ const groups = [
 
 export default function Sidebar() {
   const path = usePathname();
+  const [open, setOpen] = useState(false);
 
   return (
-    <aside style={{
+    <>
+    <button className="mobile-nav-toggle" onClick={() => setOpen(!open)} aria-label="Toggle navigation">
+      <span className={open ? 'is-open' : ''} />
+      <span className={open ? 'is-open' : ''} />
+      <span className={open ? 'is-open' : ''} />
+    </button>
+    {open && <button className="mobile-nav-backdrop" onClick={() => setOpen(false)} aria-label="Close navigation" />}
+    <aside className={open ? 'app-sidebar is-open' : 'app-sidebar'} style={{
       position: 'fixed', top: 0, left: 0, bottom: 0,
       width: 'var(--sidebar-w)',
       background: 'var(--glass)',
@@ -102,7 +111,7 @@ export default function Sidebar() {
       </Link>
 
       {/* Nav Groups */}
-      <nav style={{
+      <nav onClick={() => setOpen(false)} style={{
         flex: 1, padding: '0 12px 20px',
         display: 'flex', flexDirection: 'column', gap: '28px',
         overflowY: 'auto', position: 'relative', zIndex: 1,
@@ -208,5 +217,6 @@ export default function Sidebar() {
         <ThemeToggle />
       </footer>
     </aside>
+    </>
   );
 }

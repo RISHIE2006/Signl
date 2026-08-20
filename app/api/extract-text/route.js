@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import mammoth from 'mammoth';
+import { extractTextFromPdf } from '@/lib/pdf-utils';
 
 export async function POST(req) {
   try {
@@ -20,18 +21,7 @@ export async function POST(req) {
     let extractedText = '';
 
     if (file.type === 'application/pdf') {
-      const pdfNamespace = await import('pdf-parse');
-      const PDFParse = pdfNamespace.PDFParse || pdfNamespace.default?.PDFParse;
-      
-      if (!PDFParse) {
-         const pdfFunc = pdfNamespace.default || pdfNamespace;
-         const data = await pdfFunc(buffer);
-         extractedText = data.text;
-      } else {
-         const parser = new PDFParse({ data: buffer });
-         const data = await parser.getText();
-         extractedText = data.text;
-      }
+      extractedText = await extractTextFromPdf(buffer);
     } else if (
       file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' || 
       file.type === 'application/msword'
