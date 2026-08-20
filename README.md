@@ -155,7 +155,7 @@ graph TB
     subgraph AI["🤖 AI Provider Layer"]
         Resolver[Provider Resolver\nauto-detects from env]
         Gemini[Google Gemini\ngemini-2.0-flash]
-        Groq[Groq\nllama-3.3-70b]
+        [Groq\nllama-3.3-70b]
     end
 
     subgraph External["🔌 External Services"]
